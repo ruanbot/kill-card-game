@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b4e86091de8fd4db9fa0a01023ecda, type: 3}
+  m_Name: Greed
+  m_EditorClassIdentifier: 
+  id: 4
+  cardName: Greed
+  cardDescription: Take 5 HP\nGain 2 Max Energy
+  artwork: {fileID: -1898523646, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
+  manaCost: 1
+  cardClass: General
+  power: 0
+  targetType: 0
+  drawXcards: 0
+  addXmaxMana: 2
+  addMana: 0
+  returnXcards: 0
+  healXhealth: -5

@@ -43,7 +43,8 @@ public class BattleSystem : MonoBehaviour
                 currentEnemies[i].Initiative,
                 currentEnemies[i].Strength,
                 currentEnemies[i].Level,
-                false
+                false,
+                EntityType.Enemy
             );
 
             // Instantiate the visual prefab at the designated spawn point and assign to BattleVisuals
@@ -72,6 +73,9 @@ public class BattleSystem : MonoBehaviour
 
             allBattlers.Add(tempEntity);
             enemyBattlers.Add(tempEntity);
+
+            Debug.Log($"Enemy created: {tempEntity.Name}, EntityType: {tempEntity.EntityType}");
+
         }
     }
 
@@ -91,7 +95,8 @@ public class BattleSystem : MonoBehaviour
                 currentParty[i].Initiative,
                 currentParty[i].Strength,
                 currentParty[i].Level,
-                true
+                true,
+                EntityType.Friendly
             );
 
             if (currentParty[i].MemberBattleVisualPrefab != null)
@@ -124,8 +129,19 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    public BattleEntities GetCurrentPlayer()
+    {
+        if (playerBattlers != null && playerBattlers.Count > 0)
+        {
+            return playerBattlers[0]; // Assume the first player is the current active player
+        }
+
+        Debug.LogWarning("No players available in playerBattlers.");
+        return null;
+    }
 
 }
+
 
 [System.Serializable]
 public class BattleEntities
@@ -138,8 +154,9 @@ public class BattleEntities
     public int Level;
     public bool IsPlayer;
     public BattleVisuals BattleVisuals;
+    public EntityType EntityType; // Replace TargetType with EntityType if necessary
 
-    public void SetEntityValues(string name, int currentHealth, int maxHealth, int initiative, int strength, int level, bool isPlayer)
+    public void SetEntityValues(string name, int currentHealth, int maxHealth, int initiative, int strength, int level, bool isPlayer, EntityType entityType)
     {
         Name = name;
         CurrentHealth = currentHealth;
@@ -148,5 +165,32 @@ public class BattleEntities
         Strength = strength;
         Level = level;
         IsPlayer = isPlayer;
+        EntityType = entityType;
+
+        Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
+    }
+
+    public void TakeDamage(int damage)
+    {
+        CurrentHealth -= damage;
+        CurrentHealth = Mathf.Max(CurrentHealth, 0); // Clamp health to 0
+
+
+        if (CurrentHealth == 0)
+        {
+            HandleDeath();
+        }
+
+        // Update Visuals
+        BattleVisuals?.SyncWithEntity(this);
+        BattleVisuals?.PlayHitAnimation();
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log($"{Name} has died!");
+        BattleVisuals?.PlayDeathAnimation();
+
     }
 }
+

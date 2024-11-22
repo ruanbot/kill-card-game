@@ -13,5 +13,6 @@ public class EnemyInfo : ScriptableObject
     public int BaseStr;
     public int BaseInitiative;
     public GameObject EnemyVisualPrefab; // use in battle scene
+    public TargetType targetType = TargetType.Enemy;
 
 }

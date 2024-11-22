@@ -9,19 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85b4e86091de8fd4db9fa0a01023ecda, type: 3}
-  m_Name: Punch
+  m_Script: {fileID: 11500000, guid: 2d19569e89cbc5d499509ba0c9243217, type: 3}
+  m_Name: Slash
   m_EditorClassIdentifier: 
-  id: 0
-  cardName: Punch
-  cardDescription: Deal 1 Damage
-  artwork: {fileID: -1539926269, guid: 9c7355b0cb8a5024bba44738f70d9e74, type: 3}
+  cardName: Slash
+  cardDescription: Deal 2 Slash Damage
+  artwork: {fileID: -1868606538, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
   manaCost: 1
   cardClass: Warrior
-  power: 1
+  cardCost: 1
+  rarity: Common
   targetType: 2
-  drawXcards: 0
-  addXmaxMana: 0
-  addMana: 0
-  returnXcards: 0
-  healXhealth: 0
+  Damage: 2

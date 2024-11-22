@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf48530792084bb4c8ab41a456227df1, type: 3}
+  m_Name: Frenzy
+  m_EditorClassIdentifier: 
+  cardName: Frenzy
+  cardDescription: Take 3 Damage /n Draw 2 Cards
+  artwork: {fileID: -1898523646, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
+  manaCost: 1
+  cardCost: 0
+  cardRarity: 1
+  heroClass: 0
+  targetType: 0

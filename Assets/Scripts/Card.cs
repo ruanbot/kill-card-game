@@ -8,10 +8,10 @@ public abstract class Card : ScriptableObject
     public string cardDescription;
     public Sprite artwork;
     public int manaCost;
-    public string cardClass;
     public int cardCost;
-    public string rarity;
 
+    public CardRarity cardRarity;
+    public HeroClass heroClass;
     public TargetType targetType;
 
     public abstract void Use(BattleEntities caster, BattleEntities target);

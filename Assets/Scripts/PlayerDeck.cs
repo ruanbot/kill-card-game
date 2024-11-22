@@ -1,116 +1,81 @@
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Generic; // Keep this only if you need List<> or other generic collections
 using UnityEngine;
 
 public class PlayerDeck : MonoBehaviour
 {
     [Header("Deck Settings")]
     public List<Card> deck = new List<Card>();
-    // public static List<Card> staticDeck = new List<Card>();
     public List<Card> discardPile = new List<Card>();
-    public List<Card> hand = new List<Card>();
 
-    public GameObject CardToHand; // Prefab for CardToHand (card visual in hand)
-    public GameObject Hand; // Reference to the Hand UI panel
-
-    public GameObject cardInDeck1;
-    public GameObject cardInDeck2;
-    public GameObject cardInDeck3;
-    public GameObject cardInDeck4;
-
-    private EnergyManager energyManager;
-    private DiscardPileManager discardPileManager;
+    private CardManager cardManager;
 
     void Start()
     {
-        energyManager = FindFirstObjectByType<EnergyManager>();
-        discardPileManager = FindFirstObjectByType<DiscardPileManager>();
+        cardManager = FindFirstObjectByType<CardManager>();
         ShuffleDeck();
         StartCoroutine(StartGame());
     }
 
-    private void Update()
-    {
-        UpdateDeckDisplay();
-    }
-
     IEnumerator StartGame()
     {
-        for (int i = 0; i <= 4; i++)
+        for (int i = 0; i < 5; i++) // Draw initial 5 cards
         {
             yield return new WaitForSeconds(0.5f);
             DrawCard();
-
-        }
-    }
-
-    public void ManualDrawCard()
-    {
-        if (energyManager.HasEnoughEnergy(2))
-        {
-            DrawCard();
-            energyManager.SpendEnergy(2);
         }
     }
 
     public void DrawCard()
     {
-        // Check if the deck is empty and shuffle discard pile if needed
-        if (deck.Count == 0)
+        if (deck.Count == 0) ShuffleDiscardIntoDeck();
+        if (deck.Count == 0) return; // No cards to draw
+
+        Card drawnCard = deck[0];
+        deck.RemoveAt(0);
+
+        // Ensure drawnCard is not null and only added once
+        if (drawnCard == null)
         {
-            ShuffleDiscardIntoDeck();
+            Debug.LogWarning("Drawn card is null.");
+            return;
         }
 
-        if (deck.Count > 0)
+        // Notify CardManager to add the card to the hand
+        if (cardManager != null)
         {
-            Card drawnCard = deck[0];
-            deck.RemoveAt(0);
-            hand.Add(drawnCard);
-
-            // Instantiate CardToHand prefab for visual representation
-            GameObject newCardVisual = Instantiate(CardToHand, Hand.transform, false);
-            DisplayCard displayCard = newCardVisual.GetComponent<DisplayCard>();
-
-            if (displayCard != null)
-            {
-                displayCard.card = drawnCard; // Set card data on DisplayCard component
-                displayCard.UpdateCardInfo(); // Update visuals based on card data
-            }
+            cardManager.AddToHand(drawnCard);
+        }
+        else
+        {
+            Debug.LogError("CardManager reference is null.");
         }
     }
 
 
-    public void UpdateDeckDisplay()
+    public void DiscardCard(Card card)
     {
-        if (deck.Count < 7) cardInDeck1.SetActive(false);
-        if (deck.Count < 5) cardInDeck2.SetActive(false);
-        if (deck.Count < 2) cardInDeck3.SetActive(false);
-        if (deck.Count < 1) cardInDeck4.SetActive(false);
+        discardPile.Add(card);
     }
 
-    public void ShuffleDeck()
+    private void ShuffleDeck()
     {
         for (int i = 0; i < deck.Count; i++)
         {
-            Card temp = deck[i];
             int randomIndex = Random.Range(i, deck.Count);
+            Card temp = deck[i];
             deck[i] = deck[randomIndex];
             deck[randomIndex] = temp;
         }
     }
 
-    public void ShuffleDiscardIntoDeck()
+    private void ShuffleDiscardIntoDeck()
     {
-        if (deck.Count == 0 && discardPile.Count > 0)
+        if (discardPile.Count > 0)
         {
-            // Move all cards from discard pile to deck
             deck.AddRange(discardPile);
             discardPile.Clear();
-            discardPileManager.ClearDiscardPileVisuals();
-
-            // Shuffle the deck
             ShuffleDeck();
         }
     }
-
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class DisplayCard : MonoBehaviour
+public class DisplayCard : MonoBehaviour, IPointerClickHandler
 {
     public Card card;
     public bool isSelected = false;
@@ -17,9 +17,8 @@ public class DisplayCard : MonoBehaviour
     public TextMeshProUGUI descriptionText;
     public Image artworkImage;
     public TextMeshProUGUI manaText;
-    public TextMeshProUGUI cardClass;
     public bool cardBack;
-    
+
     // public static bool staticCardBack;
 
     public GameObject Hand;
@@ -50,10 +49,28 @@ public class DisplayCard : MonoBehaviour
             descriptionText.text = card.cardDescription;
             artworkImage.sprite = card.artwork;
             manaText.text = card.manaCost.ToString();
-            cardClass.text = card.cardClass;
+        }
+    }
+    
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        var cardManager = FindFirstObjectByType<CardManager>();
+        if (cardManager != null)
+        {
+            Debug.Log($"Card clicked: {card.cardName}, Reference: {card.GetInstanceID()}");
+            cardManager.OnCardClicked(card);
+        }
+        else
+        {
+            Debug.LogError("CardManager not found in scene.");
         }
     }
 
+    // public void OnPointerClick(PointerEventData eventData)
+    // {
+    //     CardManager cardManager = Object.FindFirstObjectByType<CardManager>();
+    //     cardManager.OnCardClicked(card);
+    // }
 
     private void UpdateCardBack()
     {

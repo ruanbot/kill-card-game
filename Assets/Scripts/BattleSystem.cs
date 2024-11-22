@@ -169,5 +169,28 @@ public class BattleEntities
 
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
+
+    public void TakeDamage(int damage)
+    {
+        CurrentHealth -= damage;
+        CurrentHealth = Mathf.Max(CurrentHealth, 0); // Clamp health to 0
+
+
+        if (CurrentHealth == 0)
+        {
+            HandleDeath();
+        }
+
+        // Update Visuals
+        BattleVisuals?.SyncWithEntity(this);
+        BattleVisuals?.PlayHitAnimation();
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log($"{Name} has died!");
+        BattleVisuals?.PlayDeathAnimation();
+
+    }
 }
 

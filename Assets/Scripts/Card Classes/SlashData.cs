@@ -14,11 +14,9 @@ public class SlashData : Card
     {
         if (target.EntityType == EntityType.Enemy)
         {
-            target.CurrentHealth -= Damage;
+            target.TakeDamage(Damage);
 
             // Update visuals
-            target.BattleVisuals?.UpdateHPDisplay();
-            target.BattleVisuals?.PlayHitAnimation();
             caster.BattleVisuals?.PlayAttackAnimation();
 
             Debug.Log($"{cardName} used: {Damage} damage to {target.Name}");

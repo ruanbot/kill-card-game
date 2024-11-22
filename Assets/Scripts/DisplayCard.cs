@@ -57,7 +57,6 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
         var cardManager = FindFirstObjectByType<CardManager>();
         if (cardManager != null)
         {
-            Debug.Log($"Card clicked: {card.cardName}, Reference: {card.GetInstanceID()}");
             cardManager.OnCardClicked(card);
         }
         else

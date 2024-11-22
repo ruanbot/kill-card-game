@@ -38,7 +38,6 @@ public class BattleVisuals : MonoBehaviour
         maxHealth = startMaxHealth;
         level = startLevel;
         levelText.text = LEVEL_ABB + level;
-        UpdateHealthBar();
         UpdateHPDisplay();
     }
 
@@ -47,7 +46,6 @@ public class BattleVisuals : MonoBehaviour
         currentHealth = current;
         maxHealth = max;
         UpdateHPDisplay();
-        UpdateHealthBar();
     }
 
 
@@ -60,7 +58,6 @@ public class BattleVisuals : MonoBehaviour
             PlayDeathAnimation();
             Destroy(gameObject, 1f); // Delay to allow death animation
         }
-        UpdateHealthBar();
         UpdateHPDisplay();
     }
 
@@ -71,15 +68,13 @@ public class BattleVisuals : MonoBehaviour
             hpText.text = $"{currentHealth}/{maxHealth}";
             Debug.Log($"{gameObject.name} HP display updated: {hpText.text}");
         }
-    }
-
-    public void UpdateHealthBar()
-    {
         if (healthBar != null)
         {
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
         }
+
+
     }
 
     public void PlayAttackAnimation()
@@ -123,5 +118,12 @@ public class BattleVisuals : MonoBehaviour
     public void DestroySelf()
     {
         Destroy(gameObject); // Destroys the GameObject this script is attached to
+    }
+
+    public void SyncWithEntity(BattleEntities entity)
+    {
+        currentHealth = entity.CurrentHealth;
+        maxHealth = entity.MaxHealth;
+        UpdateHPDisplay();
     }
 }

@@ -66,12 +66,6 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    // public void OnPointerClick(PointerEventData eventData)
-    // {
-    //     CardManager cardManager = Object.FindFirstObjectByType<CardManager>();
-    //     cardManager.OnCardClicked(card);
-    // }
-
     private void UpdateCardBack()
     {
         GameObject cardBackObject = transform.Find("CardBack")?.gameObject;

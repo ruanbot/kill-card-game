@@ -27,8 +27,6 @@ public class BattleVisuals : MonoBehaviour
     private void Start()
     {
         anim = GetComponent<Animator>();
-        UpdateHealthBar();
-        UpdateHPDisplay();
 
         // Ensure highlight is initially disabled
         if (highlightEffect != null) highlightEffect.SetActive(false);
@@ -81,7 +79,6 @@ public class BattleVisuals : MonoBehaviour
         {
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
-            Debug.Log($"{gameObject.name} HealthBar updated: {healthBar.value}/{healthBar.maxValue}");
         }
     }
 

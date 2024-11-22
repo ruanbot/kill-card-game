@@ -1,15 +1,28 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+
 public class CardManager : MonoBehaviour
 {
+    public static CardManager Instance { get; private set; }
+
     [SerializeField] private List<Card> hand = new List<Card>();
+    public IReadOnlyList<Card> Hand => hand;
+
     [SerializeField] private GameObject cardPrefab;
+
 
     private Card selectedCard; // The card currently selected by the player
     private EnergyManager energyManager;
     private BattleSystem battleSystem;
+
+    private void Awake()
+    {
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // Optional: Keep the manager across scenes if needed.
+    }
 
     private void Start()
     {
@@ -19,31 +32,38 @@ public class CardManager : MonoBehaviour
 
     public void AddToHand(Card card)
     {
-        if (card == null)
-        {
-            Debug.LogError("Cannot add a null card to hand.");
-            return;
-        }
-
-        hand.Add(card);
-
-        // Instantiate card visuals (e.g., create a UI element for the card)
-        InstantiateCardVisual(card);
-        Debug.Log($"Card added to hand: {card.cardName}. Hand count: {hand.Count}");
+        Card uniqueCard = Instantiate(card);
+        hand.Add(uniqueCard);
+        InstantiateCardVisual(uniqueCard);
     }
+
+
+    public void AddCardToHand(Card card)
+    {
+        hand.Add(card);
+    }
+
+    public void RemoveCardFromHand(Card card)
+    {
+        hand.Remove(card);
+    }
+
 
     public void PlayCard(Card card, BattleEntities caster, BattleEntities target)
     {
-        Debug.Log($"Attempting to play card: {card.cardName}, Reference: {card.GetInstanceID()}");
 
+        bool found = false;
         foreach (var c in hand)
         {
-            Debug.Log($"Card in hand: {c.cardName}, Reference: {c.GetInstanceID()}");
+            if (c == card) // Use reference equality explicitly
+            {
+                found = true;
+                break;
+            }
         }
 
-        if (!hand.Contains(card))
+        if (!found)
         {
-            Debug.LogError($"Card not found in hand: {card.cardName}, Reference: {card.GetInstanceID()}");
             return;
         }
 
@@ -72,19 +92,9 @@ public class CardManager : MonoBehaviour
     }
 
 
+
     public void OnCardClicked(Card card)
     {
-        if (!hand.Contains(card))
-        {
-            Debug.LogError($"Clicked card {card.cardName} is not in the hand. Possible reference mismatch.");
-            foreach (var c in hand)
-            {
-                Debug.Log($"Card in hand: {c.cardName}, Reference: {c.GetInstanceID()}");
-            }
-            Debug.Log($"Clicked card reference: {card.GetInstanceID()}");
-            return;
-        }
-
         if (selectedCard == card)
         {
             Debug.Log("Card already selected, deselecting.");
@@ -199,7 +209,6 @@ public class CardManager : MonoBehaviour
         if (displayCard != null)
         {
             displayCard.card = card; // Assign the exact card reference
-            Debug.Log($"Card visual created for: {card.cardName}, Reference: {card.GetInstanceID()}");
             displayCard.UpdateCardInfo(); // Update visuals like name, artwork, etc.
         }
         else

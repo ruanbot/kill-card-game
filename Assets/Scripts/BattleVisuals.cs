@@ -17,7 +17,7 @@ public class BattleVisuals : MonoBehaviour
     private Animator anim;
 
     // A reference to the highlight or outline component
-    [SerializeField] private GameObject highlightEffect;
+    [SerializeField] private GameObject highlightObject;
 
     private const string LEVEL_ABB = "Lvl: ";
     private const string IS_ATTACK_PARAM = "IsAttack";
@@ -28,9 +28,8 @@ public class BattleVisuals : MonoBehaviour
     {
         anim = GetComponent<Animator>();
 
-        // Ensure highlight is initially disabled
-        if (highlightEffect != null) highlightEffect.SetActive(false);
     }
+
 
     public void SetStartingValues(int startHealth, int startMaxHealth, int startLevel)
     {
@@ -92,15 +91,24 @@ public class BattleVisuals : MonoBehaviour
         anim.SetTrigger(IS_DEAD_PARAM);
     }
 
-    public void EnableTargetHighlight()
+    private void OnMouseEnter()
     {
-        if (highlightEffect != null) highlightEffect.SetActive(true);
+        // Enable the Highlight child object
+        if (highlightObject != null)
+        {
+            highlightObject.SetActive(true);
+        }
     }
 
-    public void DisableTargetHighlight()
+    private void OnMouseExit()
     {
-        if (highlightEffect != null) highlightEffect.SetActive(false);
+        if (highlightObject != null)
+        {
+            highlightObject.SetActive(false); // Ensure the outline is off initially
+        }
     }
+
+
 
     private void OnMouseDown()
     {

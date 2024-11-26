@@ -7,24 +7,16 @@ public class SlashData : Card
 
     public SlashData()
     {
-        targetType = TargetType.Enemy; // Correct usage
+        targetType = TargetType.Enemy;
     }
 
     public override void Use(BattleEntities caster, BattleEntities target)
     {
-        if (target.EntityType == EntityType.Enemy)
-        {
-            target.TakeDamage(Damage);
+        var cardEffect = FindFirstObjectByType<CardEffect>();
 
-            // Update visuals
-            caster.BattleVisuals?.PlayAttackAnimation();
+        cardEffect.DealDamage(target, Damage);
+        Debug.Log($"{cardName} used: {Damage} damage to {target.Name}");
 
-            Debug.Log($"{cardName} used: {Damage} damage to {target.Name}");
-        }
-        else
-        {
-            Debug.LogWarning($"{cardName} can only target enemies.");
-        }
     }
 
     public override void Upgrade()

@@ -155,7 +155,6 @@ public class CardManager : MonoBehaviour
     private void DeselectCard()
     {
         selectedCard = null;
-        DisableAllTargetHighlights();
         Debug.Log("Card deselected.");
     }
 
@@ -163,18 +162,10 @@ public class CardManager : MonoBehaviour
     {
         foreach (var target in targets)
         {
-            target.BattleVisuals.EnableTargetHighlight();
             target.BattleVisuals.SubscribeToTargetSelected(OnTargetSelected);
         }
     }
 
-    private void DisableAllTargetHighlights()
-    {
-        foreach (var battler in battleSystem.allBattlers)
-        {
-            battler.BattleVisuals.DisableTargetHighlight();
-        }
-    }
 
     private void OnTargetSelected(BattleVisuals targetVisual)
     {

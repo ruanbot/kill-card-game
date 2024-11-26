@@ -154,7 +154,7 @@ public class BattleEntities
     public int Level;
     public bool IsPlayer;
     public BattleVisuals BattleVisuals;
-    public EntityType EntityType; // Replace TargetType with EntityType if necessary
+    public EntityType EntityType;
 
     public void SetEntityValues(string name, int currentHealth, int maxHealth, int initiative, int strength, int level, bool isPlayer, EntityType entityType)
     {
@@ -192,5 +192,6 @@ public class BattleEntities
         BattleVisuals?.PlayDeathAnimation();
 
     }
+
 }
 

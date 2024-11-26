@@ -16,7 +16,7 @@ MonoBehaviour:
   cardDescription: Take 3 Damage /n Draw 2 Cards
   artwork: {fileID: -1898523646, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
   manaCost: 1
-  cardCost: 0
+  cardCost: 2
   cardRarity: 1
   heroClass: 0
   targetType: 0

@@ -142,7 +142,6 @@ public class BattleSystem : MonoBehaviour
 
 }
 
-
 [System.Serializable]
 public class BattleEntities
 {
@@ -156,7 +155,19 @@ public class BattleEntities
     public BattleVisuals BattleVisuals;
     public EntityType EntityType;
 
-    public void SetEntityValues(string name, int currentHealth, int maxHealth, int initiative, int strength, int level, bool isPlayer, EntityType entityType)
+    // Resistances to different damage types (0-100%)
+    public Dictionary<DamageType, float> DamageResistances = new Dictionary<DamageType, float>();
+
+    public void SetEntityValues(
+        string name,
+        int currentHealth,
+        int maxHealth,
+        int initiative,
+        int strength,
+        int level,
+        bool isPlayer,
+        EntityType entityType,
+        Dictionary<DamageType, float> resistances = null)
     {
         Name = name;
         CurrentHealth = currentHealth;
@@ -167,14 +178,26 @@ public class BattleEntities
         IsPlayer = isPlayer;
         EntityType = entityType;
 
+        // Set resistances or use default (0% resistance)
+        DamageResistances = resistances ?? new Dictionary<DamageType, float>();
+        foreach (DamageType type in System.Enum.GetValues(typeof(DamageType)))
+        {
+            if (!DamageResistances.ContainsKey(type))
+                DamageResistances[type] = 0f;
+        }
+
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, DamageType damageType)
     {
-        CurrentHealth -= damage;
+        float resistance = DamageResistances.ContainsKey(damageType) ? DamageResistances[damageType] : 0f;
+        int reducedDamage = Mathf.CeilToInt(damage * (1 - resistance / 100f));
+
+        CurrentHealth -= reducedDamage;
         CurrentHealth = Mathf.Max(CurrentHealth, 0); // Clamp health to 0
 
+        Debug.Log($"{Name} took {reducedDamage} {damageType} damage (Resistance: {resistance}%)");
 
         if (CurrentHealth == 0)
         {
@@ -190,8 +213,7 @@ public class BattleEntities
     {
         Debug.Log($"{Name} has died!");
         BattleVisuals?.PlayDeathAnimation();
-
     }
-
 }
+
 

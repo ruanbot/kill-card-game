@@ -15,9 +15,8 @@ public class SlashData : Card
         var cardEffect = FindFirstObjectByType<CardEffect>();
 
         caster.BattleVisuals?.PlayAttackAnimation();
-        cardEffect.DealDamage(target, Damage);
+        cardEffect.DealDamage(target, Damage, DamageType.Slash);
         Debug.Log($"{cardName} used: {Damage} damage to {target.Name}");
-
     }
 
     public override void Upgrade()

@@ -21,3 +21,12 @@ MonoBehaviour:
   BaseInitiative: 1
   EnemyVisualPrefab: {fileID: 7058902278688451, guid: c8603a8980af18841be0b4b05db0efe5,
     type: 3}
+  targetType: 2
+  resistances:
+    Slash: 0.5
+    Blunt: 0
+    Fire: 0
+    Frost: 0
+    Lightning: 0
+    Dark: 0
+    Holy: 0

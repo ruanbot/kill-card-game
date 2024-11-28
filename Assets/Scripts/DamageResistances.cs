@@ -17,7 +17,7 @@ public class DamageResistances
         {
             DamageType.Slash => Slash,
             DamageType.Blunt => Blunt,
-            DamageType.Burn => Fire,
+            DamageType.Fire => Fire,
             DamageType.Frost => Frost,
             DamageType.Lightning => Lightning,
             DamageType.Dark => Dark,

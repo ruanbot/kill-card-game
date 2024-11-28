@@ -862,6 +862,7 @@ GameObject:
   m_Component:
   - component: {fileID: 569847283}
   - component: {fileID: 569847282}
+  - component: {fileID: 569847284}
   m_Layer: 0
   m_Name: CardManager
   m_TagString: Untagged
@@ -899,6 +900,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &569847284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 569847281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d931db3e168ca5246913437228e1c163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &606309470 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5623038002667108681, guid: 81a7315b74ca8bc4e8014d31c89b303f,

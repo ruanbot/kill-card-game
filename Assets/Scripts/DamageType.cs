@@ -2,7 +2,7 @@ public enum DamageType
 {
     Slash,
     Blunt,
-    Burn,
+    Fire,
     Frost,
     Lightning,
     Dark,

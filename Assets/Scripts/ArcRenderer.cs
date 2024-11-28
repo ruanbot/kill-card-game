@@ -81,7 +81,6 @@ public class ArcRenderer : MonoBehaviour
         UpdateArc(startPos, midPoint, mousePos);
         PositionAndRotateArrow(mousePos);
 
-        SnapToEntity(mousePos);
     }
 
     void PositionAndRotateArrow(Vector3 position)
@@ -121,23 +120,6 @@ public class ArcRenderer : MonoBehaviour
             GameObject dot = Instantiate(dotPrefab, Vector3.zero, Quaternion.identity, transform);
             dot.SetActive(false);
             dotPool.Add(dot);
-        }
-    }
-
-    void SnapToEntity(Vector3 mousePosition)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-        {
-            BattleEntities target = hit.collider.GetComponent<BattleEntities>();
-            if (target != null)
-            {
-                // Snap arrow to the target's position
-                arrowInstance.transform.position = target.transform.position;
-                arrowDirection = target.transform.position; // Update direction for rotation
-            }
         }
     }
 

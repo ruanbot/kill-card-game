@@ -40,25 +40,34 @@ public class CardManager : MonoBehaviour
     {
         Card uniqueCard = Instantiate(card);
         hand.Add(uniqueCard);
-        InstantiateCardVisual(uniqueCard);
+        GameObject cardVisual = InstantiateCardVisual(uniqueCard);
 
-        // Increment the current card count
-        currentCardCount++;
-
-        // Check if the hand is fully instantiated
-        if (currentCardCount == StartingHandSize)
+        if (isHandInitialized)
         {
-            InitializeCardScripts();
-            Debug.Log("Hand fully initialized with 5 cards.");
+            InitializeCardScripts(cardVisual);
+        }
+        else
+        {
+            // Increment the current card count
+            currentCardCount++;
+
+            // Check if the hand is fully instantiated
+            if (currentCardCount == StartingHandSize)
+            {
+                InitializeAllCardScripts();
+                isHandInitialized = true;
+                Debug.Log("Hand fully initialized with 5 cards.");
+            }
         }
     }
 
 
 
-    public void AddCardToHand(Card card)
-    {
-        hand.Add(card);
-    }
+
+    // public void AddCardToHand(Card card)
+    // {
+    //     hand.Add(card);
+    // }
 
     public void RemoveCardFromHand(Card card)
     {
@@ -192,19 +201,19 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    private void InstantiateCardVisual(Card card)
+    private GameObject InstantiateCardVisual(Card card)
     {
         if (cardPrefab == null)
         {
             Debug.LogError("Card prefab is not assigned in the CardManager.");
-            return;
+            return null;
         }
 
         Transform handTransform = GameObject.Find("Hand").transform; // Replace "Hand" with the correct name of your hand UI
         if (handTransform == null)
         {
             Debug.LogError("Hand UI panel not found in the scene.");
-            return;
+            return null;
         }
 
         GameObject cardVisual = Instantiate(cardPrefab, handTransform, false);
@@ -219,7 +228,9 @@ public class CardManager : MonoBehaviour
             Debug.LogWarning("Card prefab is missing a DisplayCard component.");
         }
 
+        return cardVisual;
     }
+
 
     public void OnCardRelease(Card card)
     {
@@ -268,7 +279,26 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    private void InitializeCardScripts()
+    private void InitializeCardScripts(GameObject cardVisual)
+    {
+        // Initialize CardHover script
+        var cardHover = cardVisual.GetComponentInChildren<CardHover>();
+        if (cardHover != null)
+        {
+            cardHover.InitializeHover();
+            Debug.Log("Initialized CardHover script for card.");
+        }
+
+        // Initialize CardOverlapHandler script
+        var cardOverlap = cardVisual.GetComponent<CardOverlapHandler>();
+        if (cardOverlap != null)
+        {
+            cardOverlap.InitializeOverlap();
+            Debug.Log("Initialized CardOverlapHandler script for card.");
+        }
+    }
+
+    private void InitializeAllCardScripts()
     {
         Transform handTransform = GameObject.Find("Hand").transform;
         if (handTransform == null)
@@ -279,28 +309,9 @@ public class CardManager : MonoBehaviour
 
         foreach (Transform cardTransform in handTransform)
         {
-            // Initialize CardHover script
-            var cardHover = cardTransform.GetComponentInChildren<CardHover>();
-            if (cardHover != null)
-                cardHover.InitializeHover();
-
-
-
-            // Initialize CardOverlapHandler script
-            var cardOverlap = cardTransform.GetComponent<CardOverlapHandler>();
-            if (cardOverlap != null)
-                cardOverlap.InitializeOverlap();
-
-
+            InitializeCardScripts(cardTransform.gameObject);
         }
     }
 
-
-
-
-    public bool IsHandInitialized()
-    {
-        return isHandInitialized;
-    }
 
 }

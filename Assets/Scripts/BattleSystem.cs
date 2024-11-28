@@ -44,7 +44,8 @@ public class BattleSystem : MonoBehaviour
                 currentEnemies[i].Strength,
                 currentEnemies[i].Level,
                 false,
-                EntityType.Enemy
+                EntityType.Enemy,
+                currentEnemies[i].Resistances
             );
 
             // Instantiate the visual prefab at the designated spawn point and assign to BattleVisuals
@@ -96,7 +97,8 @@ public class BattleSystem : MonoBehaviour
                 currentParty[i].Strength,
                 currentParty[i].Level,
                 true,
-                EntityType.Friendly
+                EntityType.Friendly,
+                currentParty[i].Resistances
             );
 
             if (currentParty[i].MemberBattleVisualPrefab != null)
@@ -154,6 +156,7 @@ public class BattleEntities
     public bool IsPlayer;
     public BattleVisuals BattleVisuals;
     public EntityType EntityType;
+    public DamageResistances Resistances;
 
     // Resistances to different damage types (0-100%)
     public Dictionary<DamageType, float> DamageResistances = new Dictionary<DamageType, float>();
@@ -167,7 +170,7 @@ public class BattleEntities
         int level,
         bool isPlayer,
         EntityType entityType,
-        Dictionary<DamageType, float> resistances = null)
+        DamageResistances resistances = null)
     {
         Name = name;
         CurrentHealth = currentHealth;
@@ -177,27 +180,20 @@ public class BattleEntities
         Level = level;
         IsPlayer = isPlayer;
         EntityType = entityType;
-
-        // Set resistances or use default (0% resistance)
-        DamageResistances = resistances ?? new Dictionary<DamageType, float>();
-        foreach (DamageType type in System.Enum.GetValues(typeof(DamageType)))
-        {
-            if (!DamageResistances.ContainsKey(type))
-                DamageResistances[type] = 0f;
-        }
+        Resistances = resistances ?? new DamageResistances();
 
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
 
     public void TakeDamage(int damage, DamageType damageType)
     {
-        float resistance = DamageResistances.ContainsKey(damageType) ? DamageResistances[damageType] : 0f;
-        int reducedDamage = Mathf.CeilToInt(damage * (1 - resistance / 100f));
+        float resistance = Resistances.GetResistance(damageType);
+        int reducedDamage = Mathf.FloorToInt(damage * (1 - resistance));
 
         CurrentHealth -= reducedDamage;
         CurrentHealth = Mathf.Max(CurrentHealth, 0); // Clamp health to 0
 
-        Debug.Log($"{Name} took {reducedDamage} {damageType} damage (Resistance: {resistance}%)");
+        Debug.Log($"{Name} took {reducedDamage} {damageType} damage (Resistance: {resistance * 100}%)");
 
         if (CurrentHealth == 0)
         {

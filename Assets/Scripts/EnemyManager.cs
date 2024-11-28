@@ -19,19 +19,17 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemyName == allEnemies[i].EnemyName)
             {
-                Enemy newEnemy = new Enemy();
-
-                newEnemy.EnemyName = allEnemies[i].EnemyName;
-                newEnemy.Level = level;
-                float levelModifier = (LEVEL_MODIFIER * newEnemy.Level);
-
-                newEnemy.MaxHealth = Mathf.RoundToInt(allEnemies[i].BaseHealth + (allEnemies[i].BaseHealth * levelModifier));
-                newEnemy.CurrentHealth = newEnemy.MaxHealth;
-                newEnemy.Strength = Mathf.RoundToInt(allEnemies[i].BaseStr + (allEnemies[i].BaseStr * levelModifier));
-                newEnemy.Initiative = Mathf.RoundToInt(allEnemies[i].BaseInitiative + (allEnemies[i].BaseInitiative * levelModifier));
-
-                newEnemy.EnemyVisualPrefab = allEnemies[i].EnemyVisualPrefab;  // Store the instance as the visual prefab for the enemy
-                
+                Enemy newEnemy = new Enemy
+                {
+                    EnemyName = allEnemies[i].EnemyName,
+                    Level = level,
+                    MaxHealth = Mathf.RoundToInt(allEnemies[i].BaseHealth + (allEnemies[i].BaseHealth * (LEVEL_MODIFIER * level))),
+                    CurrentHealth = Mathf.RoundToInt(allEnemies[i].BaseHealth + (allEnemies[i].BaseHealth * (LEVEL_MODIFIER * level))),
+                    Strength = Mathf.RoundToInt(allEnemies[i].BaseStr + (allEnemies[i].BaseStr * (LEVEL_MODIFIER * level))),
+                    Initiative = Mathf.RoundToInt(allEnemies[i].BaseInitiative + (allEnemies[i].BaseInitiative * (LEVEL_MODIFIER * level))),
+                    Resistances = allEnemies[i].resistances, // Set resistances from scriptable object
+                    EnemyVisualPrefab = allEnemies[i].EnemyVisualPrefab // Store the visual prefab for the enemy
+                };
 
                 currentEnemies.Add(newEnemy);
             }
@@ -42,13 +40,19 @@ public class EnemyManager : MonoBehaviour
     {
         return currentEnemies;
     }
-
-
-    // Any method that needs to update enemy health can now reference BattleVisuals through EnemyVisualPrefab
 }
 
+[System.Serializable]
+public class Enemy
+{
+    public string EnemyName;
+    public int Level;
+    public int CurrentHealth;
+    public int MaxHealth;
+    public int Strength;
+    public int Initiative;
+    public GameObject EnemyVisualPrefab;
 
-
-
-
-
+    // Resistances to different damage types
+    public DamageResistances Resistances;
+}

@@ -13,4 +13,8 @@ public class PartyMemberInfo : ScriptableObject
     public GameObject MemberBattleVisualPrefab;    // What will be displayed in battle
     public GameObject MemberOverworldVisualPrefab; // what will be displayed in the overworld scene
     public TargetType targetType = TargetType.Friendly;
+
+    // Resistances
+    [Header("Resistances")]
+    public DamageResistances resistances = new DamageResistances();
 }

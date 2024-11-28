@@ -18,6 +18,11 @@ public class CardManager : MonoBehaviour
     private EnergyManager energyManager;
     private BattleSystem battleSystem;
 
+    private int StartingHandSize = 5;
+    private int currentCardCount = 0;
+
+    private bool isHandInitialized = false;
+
     private void Awake()
     {
         Instance = this;
@@ -28,6 +33,7 @@ public class CardManager : MonoBehaviour
     {
         energyManager = FindFirstObjectByType<EnergyManager>();
         battleSystem = FindFirstObjectByType<BattleSystem>();
+
     }
 
     public void AddToHand(Card card)
@@ -35,7 +41,18 @@ public class CardManager : MonoBehaviour
         Card uniqueCard = Instantiate(card);
         hand.Add(uniqueCard);
         InstantiateCardVisual(uniqueCard);
+
+        // Increment the current card count
+        currentCardCount++;
+
+        // Check if the hand is fully instantiated
+        if (currentCardCount == StartingHandSize)
+        {
+            InitializeCardScripts();
+            Debug.Log("Hand fully initialized with 5 cards.");
+        }
     }
+
 
 
     public void AddCardToHand(Card card)
@@ -83,28 +100,10 @@ public class CardManager : MonoBehaviour
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
 
             DestroyCardVisual(card); // Remove the card visual
-            Debug.Log($"Played card {card.cardName}. Hand count: {hand.Count}");
         }
         else
         {
             Debug.Log("Not enough energy to play this card!");
-        }
-    }
-
-
-
-    public void OnCardClicked(Card card)
-    {
-        if (selectedCard == card)
-        {
-            Debug.Log("Card already selected, deselecting.");
-            DeselectCard();
-        }
-        else
-        {
-            if (selectedCard != null) DeselectCard();
-            Debug.Log($"Card selected: {card.cardName}");
-            SelectCard(card);
         }
     }
 
@@ -151,6 +150,19 @@ public class CardManager : MonoBehaviour
 
         DeselectCard(); // Ensure card is deselected after targeting
     }
+
+    public void OnCardHold(Card card)
+    {
+        // Find the ArcRenderer on the selected card
+        var cardTransform = cardPrefab.transform;
+        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+
+        if (arcRenderer != null)
+        {
+            arcRenderer.enabled = true; // Enable ArcRenderer
+        }
+    }
+
 
     private void DeselectCard()
     {
@@ -206,7 +218,37 @@ public class CardManager : MonoBehaviour
         {
             Debug.LogWarning("Card prefab is missing a DisplayCard component.");
         }
+
     }
+
+    public void OnCardRelease(Card card)
+    {
+        var cardTransform = cardPrefab.transform;
+        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+
+        if (arcRenderer != null)
+        {
+            arcRenderer.enabled = false; // Disable ArcRenderer
+        }
+    }
+
+    public void OnCardClicked(Card card)
+    {
+        if (selectedCard == card)
+        {
+            Debug.Log("Card already selected, deselecting.");
+            OnCardRelease(card);
+            DeselectCard();
+        }
+        else
+        {
+            if (selectedCard != null) OnCardRelease(selectedCard);
+            Debug.Log($"Card selected: {card.cardName}");
+            SelectCard(card);
+            OnCardHold(card); // Enable ArcRenderer on hold
+        }
+    }
+
 
 
     private void DestroyCardVisual(Card card)
@@ -225,4 +267,40 @@ public class CardManager : MonoBehaviour
             }
         }
     }
+
+    private void InitializeCardScripts()
+    {
+        Transform handTransform = GameObject.Find("Hand").transform;
+        if (handTransform == null)
+        {
+            Debug.LogError("Hand UI panel not found in the scene.");
+            return;
+        }
+
+        foreach (Transform cardTransform in handTransform)
+        {
+            // Initialize CardHover script
+            var cardHover = cardTransform.GetComponentInChildren<CardHover>();
+            if (cardHover != null)
+                cardHover.InitializeHover();
+
+
+
+            // Initialize CardOverlapHandler script
+            var cardOverlap = cardTransform.GetComponent<CardOverlapHandler>();
+            if (cardOverlap != null)
+                cardOverlap.InitializeOverlap();
+
+
+        }
+    }
+
+
+
+
+    public bool IsHandInitialized()
+    {
+        return isHandInitialized;
+    }
+
 }

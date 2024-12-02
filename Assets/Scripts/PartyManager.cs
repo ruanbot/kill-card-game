@@ -20,14 +20,16 @@ public class PartyManager : MonoBehaviour
         {
             if (allMembers[i].MemberName == memberName)
             {
-                PartyMember newPartyMember = new PartyMember();
-
-                newPartyMember.MemberName = allMembers[i].MemberName;
-                newPartyMember.Level = allMembers[i].StartingLevel;
-                newPartyMember.MaxHealth = allMembers[i].BaseHealth;
-                newPartyMember.CurrentHealth = newPartyMember.MaxHealth;
-                newPartyMember.Initiative = allMembers[i].BaseInitiative;
-                newPartyMember.MemberBattleVisualPrefab = allMembers[i].MemberBattleVisualPrefab;
+                PartyMember newPartyMember = new PartyMember
+                {
+                    MemberName = allMembers[i].MemberName,
+                    Level = allMembers[i].StartingLevel,
+                    MaxHealth = allMembers[i].BaseHealth,
+                    CurrentHealth = allMembers[i].BaseHealth,
+                    Initiative = allMembers[i].BaseInitiative,
+                    MemberBattleVisualPrefab = allMembers[i].MemberBattleVisualPrefab,
+                    Resistances = allMembers[i].resistances // Set resistances from scriptable object
+                };
 
                 // Add the newly created member to the current party list
                 currentParty.Add(newPartyMember);
@@ -54,4 +56,7 @@ public class PartyMember
     public int MaxExp;
     public GameObject MemberBattleVisualPrefab;  // Visual prefab reference
     public BattleVisuals BattleVisuals;  // Direct reference to BattleVisuals for real-time updates
+
+    // Resistances to different damage types
+    public DamageResistances Resistances;
 }

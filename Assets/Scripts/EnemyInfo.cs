@@ -15,4 +15,8 @@ public class EnemyInfo : ScriptableObject
     public GameObject EnemyVisualPrefab; // use in battle scene
     public TargetType targetType = TargetType.Enemy;
 
+    // Resistances
+    [Header("Resistances")]
+    public DamageResistances resistances = new DamageResistances();
+
 }

@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class CardEffect : MonoBehaviour
 {
-    public void DealDamage(BattleEntities target, int damage)
+    public void DealDamage(BattleEntities target, int damage, DamageType damageType)
     {
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, damageType);
+        Debug.Log($"Dealt {damage} {damageType} damage to {target.Name}");
     }
 
     public void Heal(BattleEntities target, int amount)

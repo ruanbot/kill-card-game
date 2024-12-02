@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f35c95f01b9dde45864b46d4c02b9b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverHeight: 120
+  hoverHeight: 210
   hoverSpeed: 5
 --- !u!1 &4428975865050107361
 GameObject:
@@ -831,7 +831,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6740021814432676111
 RectTransform:
   m_ObjectHideFlags: 0
@@ -901,6 +901,7 @@ GameObject:
   - component: {fileID: 7632126187061612565}
   - component: {fileID: 4528059782709222038}
   - component: {fileID: 1997633879014083247}
+  - component: {fileID: 2658325177601139036}
   m_Layer: 5
   m_Name: CardToHand
   m_TagString: Clone
@@ -971,3 +972,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineObject: {fileID: 8608616640434238904}
+--- !u!114 &2658325177601139036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8672264467982000999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 679d5af8aa3fffe4a9d3b911e93d0a8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -22,6 +22,8 @@ public class CardManager : MonoBehaviour
     private int currentCardCount = 0;
 
     private bool isHandInitialized = false;
+    private bool highlightLock = false;
+    public Card currentlyHoveredCard;
 
     private void Awake()
     {
@@ -75,14 +77,6 @@ public class CardManager : MonoBehaviour
             displayCard.UpdateCardInfo(); // Update card visuals like name, artwork, etc.
         }
     }
-
-
-
-
-    // public void AddCardToHand(Card card)
-    // {
-    //     hand.Add(card);
-    // }
 
     public void RemoveCardFromHand(Card card)
     {
@@ -218,8 +212,20 @@ public class CardManager : MonoBehaviour
         }
     }
 
+    public bool IsHighlightLocked => highlightLock;
+
+    public void LockHighlights(bool isLocked)
+    {
+        highlightLock = isLocked;
+    }
+
     public void HighlightTargets(Card card)
     {
+        if (highlightLock)
+        {
+            Debug.Log("Highlighting locked.");
+            return; // Skip highlighting if locked
+        }
         if (card.targetType == TargetType.All)
         {
             foreach (var entity in battleSystem.allBattlers)
@@ -258,6 +264,16 @@ public class CardManager : MonoBehaviour
         {
             entity.BattleVisuals?.SetHighlight(false);
         }
+    }
+
+    public void SetCurrentlyHoveredCard(Card card)
+    {
+        currentlyHoveredCard = card;
+    }
+
+    public void ClearCurrentlyHoveredCard()
+    {
+        currentlyHoveredCard = null;
     }
 
 

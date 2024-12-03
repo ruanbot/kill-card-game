@@ -28,7 +28,11 @@ public class CardHoverHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         if (card != null && CardManager.Instance != null)
         {
-            CardManager.Instance.HighlightTargets(card);
+            CardManager.Instance.SetCurrentlyHoveredCard(card);
+            if (!CardManager.Instance.IsHighlightLocked)
+            {
+                CardManager.Instance.HighlightTargets(card);
+            }
         }
     }
 
@@ -41,6 +45,7 @@ public class CardHoverHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         if (CardManager.Instance != null)
         {
+            CardManager.Instance.ClearCurrentlyHoveredCard();
             CardManager.Instance.ClearHighlights();
         }
     }

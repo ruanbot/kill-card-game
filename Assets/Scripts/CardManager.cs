@@ -22,6 +22,8 @@ public class CardManager : MonoBehaviour
     private int currentCardCount = 0;
 
     private bool isHandInitialized = false;
+    private bool highlightLock = false;
+    public Card currentlyHoveredCard;
 
     private void Awake()
     {
@@ -59,15 +61,22 @@ public class CardManager : MonoBehaviour
                 Debug.Log("Hand fully initialized with 5 cards.");
             }
         }
+
+        // Assign the card data to the CardHoverHighlight component
+        CardHoverHighlight hoverHighlight = cardVisual.GetComponent<CardHoverHighlight>();
+        if (hoverHighlight != null)
+        {
+            hoverHighlight.SetCard(uniqueCard); // Pass the card data to the hover script
+        }
+
+        // Assign the card data to the DisplayCard component (if applicable)
+        DisplayCard displayCard = cardVisual.GetComponent<DisplayCard>();
+        if (displayCard != null)
+        {
+            displayCard.card = uniqueCard; // Pass the card data to the display script
+            displayCard.UpdateCardInfo(); // Update card visuals like name, artwork, etc.
+        }
     }
-
-
-
-
-    // public void AddCardToHand(Card card)
-    // {
-    //     hand.Add(card);
-    // }
 
     public void RemoveCardFromHand(Card card)
     {
@@ -107,6 +116,8 @@ public class CardManager : MonoBehaviour
 
             // Notify PlayerDeck to move card to discard pile
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
+
+            ClearHighlights();
 
             DestroyCardVisual(card); // Remove the card visual
         }
@@ -201,6 +212,71 @@ public class CardManager : MonoBehaviour
         }
     }
 
+    public bool IsHighlightLocked => highlightLock;
+
+    public void LockHighlights(bool isLocked)
+    {
+        highlightLock = isLocked;
+    }
+
+    public void HighlightTargets(Card card)
+    {
+        if (highlightLock)
+        {
+            Debug.Log("Highlighting locked.");
+            return; // Skip highlighting if locked
+        }
+        if (card.targetType == TargetType.All)
+        {
+            foreach (var entity in battleSystem.allBattlers)
+            {
+                entity.BattleVisuals?.SetHighlight(true);
+            }
+        }
+        else if (card.targetType == TargetType.AllEnemy)
+        {
+            foreach (var enemy in battleSystem.enemyBattlers)
+            {
+                enemy.BattleVisuals?.SetHighlight(true);
+            }
+        }
+        else if (card.targetType == TargetType.AllFriendly)
+        {
+            foreach (var friendly in battleSystem.playerBattlers)
+            {
+                friendly.BattleVisuals?.SetHighlight(true);
+            }
+        }
+        else if (card.targetType == TargetType.Enemy && battleSystem.enemyBattlers.Count == 1)
+        {
+            battleSystem.enemyBattlers[0].BattleVisuals?.SetHighlight(true);
+            Debug.Log($"hovering over cards: {card.cardName}");
+        }
+        else if (card.targetType == TargetType.Friendly && battleSystem.playerBattlers.Count == 1)
+        {
+            battleSystem.playerBattlers[0].BattleVisuals?.SetHighlight(true);
+        }
+    }
+
+    public void ClearHighlights()
+    {
+        foreach (var entity in battleSystem.allBattlers)
+        {
+            entity.BattleVisuals?.SetHighlight(false);
+        }
+    }
+
+    public void SetCurrentlyHoveredCard(Card card)
+    {
+        currentlyHoveredCard = card;
+    }
+
+    public void ClearCurrentlyHoveredCard()
+    {
+        currentlyHoveredCard = null;
+    }
+
+
     private GameObject InstantiateCardVisual(Card card)
     {
         if (cardPrefab == null)
@@ -234,6 +310,8 @@ public class CardManager : MonoBehaviour
 
     public void OnCardRelease(Card card)
     {
+        ClearHighlights();
+
         var cardTransform = cardPrefab.transform;
         var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
 

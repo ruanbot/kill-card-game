@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
 public class BattleVisuals : MonoBehaviour
 {
@@ -83,7 +84,21 @@ public class BattleVisuals : MonoBehaviour
 
     public void PlayHitAnimation()
     {
+        CardManager.Instance.LockHighlights(true);
         anim.SetTrigger(IS_HIT_PARAM);
+        StartCoroutine(UnlockHighlightAfterAnimation());
+    }
+
+    private IEnumerator UnlockHighlightAfterAnimation()
+    {
+        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
+        CardManager.Instance.LockHighlights(false);
+
+        // Retrigger highlights if a card is currently hovered
+        if (CardManager.Instance.currentlyHoveredCard != null)
+        {
+            CardManager.Instance.HighlightTargets(CardManager.Instance.currentlyHoveredCard);
+        }
     }
 
     public void PlayDeathAnimation()
@@ -133,5 +148,13 @@ public class BattleVisuals : MonoBehaviour
         currentHealth = entity.CurrentHealth;
         maxHealth = entity.MaxHealth;
         UpdateHPDisplay();
+    }
+
+    public void SetHighlight(bool isActive)
+    {
+        if (highlightObject != null)
+        {
+            highlightObject.SetActive(isActive);
+        }
     }
 }

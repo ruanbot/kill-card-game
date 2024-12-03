@@ -51,7 +51,7 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
             manaText.text = card.manaCost.ToString();
         }
     }
-    
+
     public void OnPointerClick(PointerEventData eventData)
     {
         var cardManager = FindFirstObjectByType<CardManager>();
@@ -73,4 +73,6 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
             cardBackObject.SetActive(cardBack);
         }
     }
+
 }
+

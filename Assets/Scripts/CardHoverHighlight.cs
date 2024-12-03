@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 public class CardHoverHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private GameObject outlineObject; // Reference to the outline child object
+    [SerializeField] private Card card;
 
     private void Start()
     {
@@ -13,11 +14,21 @@ public class CardHoverHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
         }
     }
 
+    public void SetCard(Card cardData)
+    {
+        card = cardData;
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (outlineObject != null)
         {
             outlineObject.SetActive(true); // Show outline on hover
+        }
+
+        if (card != null && CardManager.Instance != null)
+        {
+            CardManager.Instance.HighlightTargets(card);
         }
     }
 
@@ -26,6 +37,11 @@ public class CardHoverHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (outlineObject != null)
         {
             outlineObject.SetActive(false); // Hide outline on hover exit
+        }
+
+        if (CardManager.Instance != null)
+        {
+            CardManager.Instance.ClearHighlights();
         }
     }
 }

@@ -3,5 +3,7 @@ public enum TargetType
     Self,
     Friendly,
     Enemy,
-    All
+    All,
+    AllFriendly,
+    AllEnemy
 }

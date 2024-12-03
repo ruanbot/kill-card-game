@@ -5,7 +5,7 @@ public class DamageResistances
 {
     [Range(0, 1)] public float Slash = 0f;
     [Range(0, 1)] public float Blunt = 0f;
-    [Range(0, 1)] public float Range = 0f;
+    [Range(0, 1)] public float Ranged = 0f;
     [Range(0, 1)] public float Fire = 0f;
     [Range(0, 1)] public float Frost = 0f;
     [Range(0, 1)] public float Lightning = 0f;
@@ -15,7 +15,7 @@ public class DamageResistances
     // Immunity flags for each damage type
     public bool ImmuneSlash = false;
     public bool ImmuneBlunt = false;
-    public bool ImmuneRange = false;
+    public bool ImmuneRanged = false;
     public bool ImmuneFire = false;
     public bool ImmuneFrost = false;
     public bool ImmuneLightning = false;
@@ -29,7 +29,7 @@ public class DamageResistances
         {
             DamageType.Slash => ImmuneSlash,
             DamageType.Blunt => ImmuneBlunt,
-            damageType.Range => ImmuneRange,
+            DamageType.Ranged => ImmuneRanged,
             DamageType.Fire => ImmuneFire,
             DamageType.Frost => ImmuneFrost,
             DamageType.Lightning => ImmuneLightning,
@@ -45,7 +45,7 @@ public class DamageResistances
         {
             DamageType.Slash => Slash,
             DamageType.Blunt => Blunt,
-            DamageType.Range => Range,
+            DamageType.Ranged => Ranged,
             DamageType.Fire => Fire,
             DamageType.Frost => Frost,
             DamageType.Lightning => Lightning,

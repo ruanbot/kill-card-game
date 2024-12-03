@@ -134,4 +134,12 @@ public class BattleVisuals : MonoBehaviour
         maxHealth = entity.MaxHealth;
         UpdateHPDisplay();
     }
+
+    public void SetHighlight(bool isActive)
+{
+    if (highlightObject != null)
+    {
+        highlightObject.SetActive(isActive);
+    }
+}
 }

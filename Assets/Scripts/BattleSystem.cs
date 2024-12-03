@@ -187,6 +187,12 @@ public class BattleEntities
 
     public void TakeDamage(int damage, DamageType damageType)
     {
+        // Check if the entity is immune to this type of damage
+        if (Resistances.IsImmune(damageType))
+        {
+            Debug.Log($"{Name} is immune to {damageType} damage. No damage taken.");
+            return; // Negate damage if immune
+        }
         float resistance = Resistances.GetResistance(damageType);
         int reducedDamage = Mathf.FloorToInt(damage * (1 - resistance));
 

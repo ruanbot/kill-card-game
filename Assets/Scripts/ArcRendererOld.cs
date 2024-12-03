@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ArcRenderer : MonoBehaviour
+public class ArcRendererOld : MonoBehaviour
 {
     public GameObject arrowPrefab;
     public GameObject dotPrefab;
@@ -70,7 +70,8 @@ public class ArcRenderer : MonoBehaviour
 
         arrowInstance.SetActive(true);
 
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePos = Input.mousePosition;
+        
         // Vector3 mousePos = Input.mousePosition;
 
         mousePos.z = 0;

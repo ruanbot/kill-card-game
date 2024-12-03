@@ -175,7 +175,7 @@ public class CardManager : MonoBehaviour
     {
         // Find the ArcRenderer on the selected card
         var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+        var arcRenderer = cardTransform.GetComponentInChildren<ArcRendererOld>();
 
         if (arcRenderer != null)
         {
@@ -313,7 +313,7 @@ public class CardManager : MonoBehaviour
         ClearHighlights();
 
         var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+        var arcRenderer = cardTransform.GetComponentInChildren<ArcRendererOld>();
 
         if (arcRenderer != null)
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class DisplayCard : MonoBehaviour, IPointerClickHandler
+public class DisplayCard : MonoBehaviour, IPointerClickHandler,IPointerUpHandler,IPointerDownHandler
 {
     public Card card;
     public bool isSelected = false;
@@ -24,6 +24,8 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
     public GameObject Hand;
     public int numberOfCardsInDeck;
 
+    private bool _isHolding;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -39,6 +41,13 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
     void Update()
     {
         UpdateCardBack();
+
+        if (_isHolding)
+        {
+            var cardManager = FindFirstObjectByType<CardManager>();
+            cardManager.OnCardHold(this);
+            
+        }
     }
 
     public void UpdateCardInfo()
@@ -54,15 +63,7 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        var cardManager = FindFirstObjectByType<CardManager>();
-        if (cardManager != null)
-        {
-            cardManager.OnCardClicked(card);
-        }
-        else
-        {
-            Debug.LogError("CardManager not found in scene.");
-        }
+        //Moved here to down
     }
 
     private void UpdateCardBack()
@@ -74,5 +75,32 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        var cardManager = FindFirstObjectByType<CardManager>();
+        if (cardManager != null)
+        {
+            cardManager.OnCardClicked(card);
+        }
+        else
+        {
+            Debug.LogError("CardManager not found in scene.");
+        }
+        
+        _isHolding = true;
+        GetComponentInChildren<ArcDotControllerUI>().enabled = true;
+        Debug.Log("DOWN");
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _isHolding = false;
+        GetComponentInChildren<ArcDotControllerUI>().enabled = false;
+        Debug.Log("UP");
+        
+        var cardManager = FindFirstObjectByType<CardManager>();
+        cardManager.DeselectCard();
+        
+    }
 }
 

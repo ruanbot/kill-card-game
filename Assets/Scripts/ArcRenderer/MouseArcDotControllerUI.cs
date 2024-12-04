@@ -41,6 +41,7 @@ public class MouseArcDotControllerUI : MonoBehaviour
     {
         arcRenderer.arrowInstance = Instantiate(arcRenderer.arrowPrefab, transform);
         arcRenderer.arrowInstance.anchoredPosition = Vector3.zero;
+        arcRenderer.arrowInstance.gameObject.SetActive(false);
         InitializeDotPool(arcRenderer.poolSize);
     }
     void InitializeDotPool(int count)

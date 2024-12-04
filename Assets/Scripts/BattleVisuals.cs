@@ -7,6 +7,9 @@ using System.Collections;
 public class BattleVisuals : MonoBehaviour
 {
     public event Action<BattleVisuals> TargetSelected; // Public event
+    public event Action<BattleVisuals> HoveringOnTarget; //Public Event
+    
+    public event Action<BattleVisuals> HoveringOnTargetEnded; //Public Event
 
     [SerializeField] private Slider healthBar;
     [SerializeField] private TextMeshProUGUI hpText;
@@ -105,7 +108,7 @@ public class BattleVisuals : MonoBehaviour
     {
         anim.SetTrigger(IS_DEAD_PARAM);
     }
-
+    
     private void OnMouseEnter()
     {
         // Enable the Highlight child object
@@ -121,14 +124,22 @@ public class BattleVisuals : MonoBehaviour
         {
             highlightObject.SetActive(false); // Ensure the outline is off initially
         }
+
+        HoveringOnTargetEnded?.Invoke(this);
     }
 
 
 
-    private void OnMouseDown()
+    private void OnMouseOver()
     {
-        TargetSelected?.Invoke(this);
-        Debug.Log("TargetSelected invoked for " + gameObject.name);
+        if (Input.GetMouseButtonUp(0))
+        {
+            SelectTarget();
+        }
+
+        OnTargetHover();
+        
+        Debug.Log("MOUSEOVER");
     }
 
     public void SubscribeToTargetSelected(Action<BattleVisuals> listener)
@@ -137,6 +148,34 @@ public class BattleVisuals : MonoBehaviour
         TargetSelected += listener;
         Debug.Log($"Subscribed {listener.Method.Name} to TargetSelected event on {gameObject.name}");
     }
+    
+    public void SubscribeToTargetHovering(Action<BattleVisuals> listener)
+    {
+        HoveringOnTarget -= listener;
+        HoveringOnTarget += listener;
+        Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTarget event on {gameObject.name}");
+    }
+    
+    public void SubscribeToTargetHoveringEnded(Action<BattleVisuals> listener)
+    {
+        HoveringOnTargetEnded -= listener;
+        HoveringOnTargetEnded += listener;
+        Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTargetEnded event on {gameObject.name}");
+    }
+
+
+    //Disket added this
+    private void SelectTarget()
+    {
+        TargetSelected?.Invoke(this);
+        Debug.Log("TargetSelected invoked for " + gameObject.name);
+    }
+
+    private void OnTargetHover()
+    {
+        HoveringOnTarget?.Invoke(this);
+    }
+    //
 
     public void DestroySelf()
     {

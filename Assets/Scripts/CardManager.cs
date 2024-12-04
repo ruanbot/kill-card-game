@@ -15,6 +15,7 @@ public class CardManager : MonoBehaviour
 
 
     private Card selectedCard; // The card currently selected by the player
+    private DisplayCard selectedVisual; //Disket Visual currently selected by the player 
     private EnergyManager energyManager;
     private BattleSystem battleSystem;
 
@@ -24,11 +25,16 @@ public class CardManager : MonoBehaviour
     private bool isHandInitialized = false;
     private bool highlightLock = false;
     public Card currentlyHoveredCard;
+    
+    //Disket
+    private List<DisplayCard> displayCardList;
 
     private void Awake()
     {
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: Keep the manager across scenes if needed.
+        //Disket
+        displayCardList = new List<DisplayCard>();
     }
 
     private void Start()
@@ -42,11 +48,11 @@ public class CardManager : MonoBehaviour
     {
         Card uniqueCard = Instantiate(card);
         hand.Add(uniqueCard);
-        GameObject cardVisual = InstantiateCardVisual(uniqueCard);
+        DisplayCard cardVisual = InstantiateCardVisual(uniqueCard);
 
         if (isHandInitialized)
         {
-            InitializeCardScripts(cardVisual);
+            InitializeCardScripts(cardVisual.gameObject);
         }
         else
         {
@@ -168,14 +174,18 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        DeselectCard(); // Ensure card is deselected after targeting
     }
 
-    public void OnCardHold(Card card)
+    public void OnCardHold(DisplayCard displayCard)
     {
         // Find the ArcRenderer on the selected card
-        var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRendererOld>();
+        var arcRenderer = displayCard.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
+        selectedVisual = displayCard;
+        
+        if (selectedVisual != null)
+        {
+            selectedVisual.GetComponentInChildren<CardHover>().SetHover(true);
+        }
 
         if (arcRenderer != null)
         {
@@ -184,9 +194,13 @@ public class CardManager : MonoBehaviour
     }
 
 
-    private void DeselectCard()
+    public void DeselectCard()
     {
         selectedCard = null;
+        if (selectedVisual != null)
+        {
+            selectedVisual.GetComponentInChildren<CardHover>().SetHover(false);
+        }
         Debug.Log("Card deselected.");
     }
 
@@ -195,21 +209,60 @@ public class CardManager : MonoBehaviour
         foreach (var target in targets)
         {
             target.BattleVisuals.SubscribeToTargetSelected(OnTargetSelected);
+            //Disket
+            target.BattleVisuals.SubscribeToTargetHovering(OnTargetHover);
+            target.BattleVisuals.SubscribeToTargetHoveringEnded(OnTargetHoverEnd);
         }
     }
 
 
     private void OnTargetSelected(BattleVisuals targetVisual)
     {
-        var target = battleSystem.allBattlers.Find(entity => entity.BattleVisuals == targetVisual);
+        BattleEntities target = battleSystem.allBattlers.Find(entity => entity.BattleVisuals == targetVisual);
+
+        Debug.Log("Target Selected On Card Manager");
+
+        if (target == null)
+        {
+            Debug.Log("Selected target is null");
+        }
+
+        if (selectedCard == null)
+        {
+            Debug.Log("Selected card is null");
+        }
 
         if (target != null && selectedCard != null)
         {
+            Debug.Log("Successfully Played The Card");
             var caster = battleSystem.GetCurrentPlayer();
             Debug.Log($"Playing card {selectedCard.cardName}. Caster: {caster.Name}, Target: {target.Name}");
             PlayCard(selectedCard, caster, target);
             DeselectCard();
         }
+    }
+
+    //Disket
+    private void OnTargetHover(BattleVisuals targetVisual)
+    {
+        //Disket
+        if (selectedVisual != null)
+        {
+            
+            selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().SetTarget(targetVisual.transform.position);
+        }
+        else
+        {
+            Debug.Log("SELECTED VISUAL IS NULL");
+        }
+    }
+
+    private void OnTargetHoverEnd(BattleVisuals targetVisual)
+    {
+        if (selectedVisual == null)
+            return;
+        
+        selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().DeselectTarget();
     }
 
     public bool IsHighlightLocked => highlightLock;
@@ -277,7 +330,8 @@ public class CardManager : MonoBehaviour
     }
 
 
-    private GameObject InstantiateCardVisual(Card card)
+    //Disket (Changed return type to DisplayCard)
+    private DisplayCard InstantiateCardVisual(Card card)
     {
         if (cardPrefab == null)
         {
@@ -304,21 +358,27 @@ public class CardManager : MonoBehaviour
             Debug.LogWarning("Card prefab is missing a DisplayCard component.");
         }
 
-        return cardVisual;
+        //Disket
+        return cardVisual.GetComponent<DisplayCard>();
     }
 
 
     public void OnCardRelease(Card card)
     {
         ClearHighlights();
+    }
+    
+    public void OnCardRelease(DisplayCard card)
+    {
+       OnCardRelease(card.card);
+       
+       // Find the ArcRenderer on the selected card
+       var arcRenderer = card.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
 
-        var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRendererOld>();
-
-        if (arcRenderer != null)
-        {
-            arcRenderer.enabled = false; // Disable ArcRenderer
-        }
+       if (arcRenderer != null)
+       {
+           arcRenderer.enabled = false; // Disable ArcRenderer
+       }
     }
 
     public void OnCardClicked(Card card)
@@ -334,7 +394,6 @@ public class CardManager : MonoBehaviour
             if (selectedCard != null) OnCardRelease(selectedCard);
             Debug.Log($"Card selected: {card.cardName}");
             SelectCard(card);
-            OnCardHold(card); // Enable ArcRenderer on hold
         }
     }
 

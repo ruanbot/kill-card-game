@@ -142,6 +142,16 @@ public class BattleSystem : MonoBehaviour
         return null;
     }
 
+    public void EndBattle()
+    {
+        foreach (var entity in allBattlers)
+        {
+            entity.ClearBuffs();
+        }
+
+        Debug.Log("Battle ended, all buffs cleared.");
+    }
+
 }
 
 [System.Serializable]
@@ -157,6 +167,10 @@ public class BattleEntities
     public BattleVisuals BattleVisuals;
     public EntityType EntityType;
     public DamageResistances Resistances;
+
+    private List<Buff> activeBuffs = new List<Buff>();
+
+
 
     // Resistances to different damage types (0-100%)
     public Dictionary<DamageType, float> DamageResistances = new Dictionary<DamageType, float>();
@@ -216,6 +230,42 @@ public class BattleEntities
         Debug.Log($"{Name} has died!");
         BattleVisuals?.PlayDeathAnimation();
     }
+
+    public void ApplyBuff(Buff buff)
+    {
+        activeBuffs.Add(buff);
+        Debug.Log($"{Name} received a buff: {buff.DamageType} damage increased by {buff.Percentage}%");
+    }
+
+    public float GetBuffedDamageMultiplier(DamageType damageType)
+    {
+        float multiplier = 1.0f;
+
+        foreach (var buff in activeBuffs)
+        {
+            if (buff.DamageType == damageType)
+            {
+                multiplier += buff.Percentage / 100f;
+            }
+        }
+
+        return multiplier;
+    }
+
+    public void ClearBuffs()
+    {
+        activeBuffs.Clear();
+        Debug.Log($"{Name}'s buffs have been cleared.");
+    }
 }
+
+public struct Buff
+{
+    public DamageType DamageType;
+    public float Percentage;
+}
+
+
+
 
 

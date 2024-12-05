@@ -651,6 +651,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allEnemies:
   - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
+  - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
+  - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
   currentEnemies: []
 --- !u!1 &379990341
 GameObject:
@@ -746,7 +748,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -806.11743, y: -286}
+  m_AnchoredPosition: {x: -806.1174, y: -286}
   m_SizeDelta: {x: -1431.955, y: -378.075}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &449546722
@@ -885,6 +887,7 @@ MonoBehaviour:
   hand: []
   cardPrefab: {fileID: 8672264467982000999, guid: 92e60666cc2eb6346a7b5826fc5d8200,
     type: 3}
+  currentlyHoveredCard: {fileID: 0}
 --- !u!4 &569847283
 Transform:
   m_ObjectHideFlags: 0

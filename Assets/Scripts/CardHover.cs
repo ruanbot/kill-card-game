@@ -11,6 +11,8 @@ public class CardHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     private bool isSelected = false;
     private bool isInitialized = false;
 
+    public Transform hoverTarget;
+
     private void Start()
     {
         // Store the original local position of the HoverContainer
@@ -46,9 +48,10 @@ public class CardHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (isHovered || isSelected)
         {
             targetPosition += Vector3.up * hoverHeight;
+            targetPosition += -Vector3.right * hoverHeight;
         }
 
-        transform.localPosition = Vector3.Lerp(transform.localPosition, targetPosition, Time.deltaTime * hoverSpeed);
+        hoverTarget.localPosition = Vector3.Lerp(hoverTarget.localPosition, targetPosition, Time.deltaTime * hoverSpeed);
     }
 
     public void InitializeHover()

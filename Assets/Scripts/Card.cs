@@ -14,18 +14,7 @@ public abstract class Card : ScriptableObject
     public HeroClass heroClass;
     public TargetType targetType;
 
-    public DamageType damageType;
-    public int damageAmount;
-
     public abstract void Use(BattleEntities caster, BattleEntities target);
-
-    public virtual void ApplyDamage(BattleEntities caster, BattleEntities target)
-    {
-        if (damageAmount > 0)
-        {
-            target.TakeDamage(damageAmount, damageType);
-        }
-    }
 
     public virtual void Upgrade() { }
 

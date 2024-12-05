@@ -15,6 +15,7 @@ public class CardManager : MonoBehaviour
 
 
     private Card selectedCard; // The card currently selected by the player
+    private DisplayCard selectedVisual; //Disket Visual currently selected by the player 
     private EnergyManager energyManager;
     private BattleSystem battleSystem;
 
@@ -25,10 +26,15 @@ public class CardManager : MonoBehaviour
     private bool highlightLock = false;
     public Card currentlyHoveredCard;
 
+    //Disket
+    private List<DisplayCard> displayCardList;
+
     private void Awake()
     {
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: Keep the manager across scenes if needed.
+        //Disket
+        displayCardList = new List<DisplayCard>();
     }
 
     private void Start()
@@ -42,11 +48,11 @@ public class CardManager : MonoBehaviour
     {
         Card uniqueCard = Instantiate(card);
         hand.Add(uniqueCard);
-        GameObject cardVisual = InstantiateCardVisual(uniqueCard);
+        DisplayCard cardVisual = InstantiateCardVisual(uniqueCard);
 
         if (isHandInitialized)
         {
-            InitializeCardScripts(cardVisual);
+            InitializeCardScripts(cardVisual.gameObject);
         }
         else
         {
@@ -58,7 +64,6 @@ public class CardManager : MonoBehaviour
             {
                 InitializeAllCardScripts();
                 isHandInitialized = true;
-                Debug.Log("Hand fully initialized with 5 cards.");
             }
         }
 
@@ -167,15 +172,46 @@ public class CardManager : MonoBehaviour
                 EnableTargeting(battleSystem.playerBattlers);
             }
         }
+        else if (card.targetType == TargetType.AllEnemy)
+        {
+            // Immediately execute the card effect on all enemies
+            Debug.Log($"Playing {card.cardName} on all enemies.");
+            foreach (var enemy in battleSystem.enemyBattlers)
+            {
+                PlayCard(card, caster, enemy);
+            }
+        }
+        else if (card.targetType == TargetType.AllFriendly)
+        {
+            // Immediately execute the card effect on all friendly entities
+            Debug.Log($"Playing {card.cardName} on all friendly entities.");
+            foreach (var friendly in battleSystem.playerBattlers)
+            {
+                PlayCard(card, caster, friendly);
+            }
+        }
+        else if (card.targetType == TargetType.All)
+        {
+            // Immediately execute the card effect on all entities
+            Debug.Log($"Playing {card.cardName} on all entities.");
+            foreach (var entity in battleSystem.allBattlers)
+            {
+                PlayCard(card, caster, entity);
+            }
+        }
 
-        DeselectCard(); // Ensure card is deselected after targeting
     }
 
-    public void OnCardHold(Card card)
+    public void OnCardHold(DisplayCard displayCard)
     {
         // Find the ArcRenderer on the selected card
-        var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+        var arcRenderer = displayCard.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
+        selectedVisual = displayCard;
+
+        if (selectedVisual != null)
+        {
+            selectedVisual.GetComponentInChildren<CardHover>().SetHover(true);
+        }
 
         if (arcRenderer != null)
         {
@@ -184,10 +220,14 @@ public class CardManager : MonoBehaviour
     }
 
 
-    private void DeselectCard()
+    public void DeselectCard()
     {
         selectedCard = null;
-        Debug.Log("Card deselected.");
+        if (selectedVisual != null)
+        {
+            selectedVisual.GetComponentInChildren<CardHover>().SetHover(false);
+        }
+
     }
 
     private void EnableTargeting(List<BattleEntities> targets)
@@ -195,21 +235,56 @@ public class CardManager : MonoBehaviour
         foreach (var target in targets)
         {
             target.BattleVisuals.SubscribeToTargetSelected(OnTargetSelected);
+            //Disket
+            target.BattleVisuals.SubscribeToTargetHovering(OnTargetHover);
+            target.BattleVisuals.SubscribeToTargetHoveringEnded(OnTargetHoverEnd);
         }
     }
 
 
     private void OnTargetSelected(BattleVisuals targetVisual)
     {
-        var target = battleSystem.allBattlers.Find(entity => entity.BattleVisuals == targetVisual);
+        BattleEntities target = battleSystem.allBattlers.Find(entity => entity.BattleVisuals == targetVisual);
+
+
+
+        if (target == null)
+        {
+            Debug.Log("Selected target is null");
+        }
+
+        if (selectedCard == null)
+        {
+            Debug.Log("Selected card is null");
+        }
 
         if (target != null && selectedCard != null)
         {
+            Debug.Log("Successfully Played The Card");
             var caster = battleSystem.GetCurrentPlayer();
             Debug.Log($"Playing card {selectedCard.cardName}. Caster: {caster.Name}, Target: {target.Name}");
             PlayCard(selectedCard, caster, target);
             DeselectCard();
         }
+    }
+
+    //Disket
+    private void OnTargetHover(BattleVisuals targetVisual)
+    {
+        //Disket
+        if (selectedVisual != null)
+        {
+
+            selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().SetTarget(targetVisual.transform.position);
+        }
+    }
+
+    private void OnTargetHoverEnd(BattleVisuals targetVisual)
+    {
+        if (selectedVisual == null)
+            return;
+
+        selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().DeselectTarget();
     }
 
     public bool IsHighlightLocked => highlightLock;
@@ -226,37 +301,65 @@ public class CardManager : MonoBehaviour
             Debug.Log("Highlighting locked.");
             return; // Skip highlighting if locked
         }
-        if (card.targetType == TargetType.All)
+
+        Debug.Log($"HighlightTargets called for {card.cardName} with TargetType: {card.targetType}");
+
+        switch (card.targetType)
         {
-            foreach (var entity in battleSystem.allBattlers)
-            {
-                entity.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.AllEnemy)
-        {
-            foreach (var enemy in battleSystem.enemyBattlers)
-            {
-                enemy.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.AllFriendly)
-        {
-            foreach (var friendly in battleSystem.playerBattlers)
-            {
-                friendly.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.Enemy && battleSystem.enemyBattlers.Count == 1)
-        {
-            battleSystem.enemyBattlers[0].BattleVisuals?.SetHighlight(true);
-            Debug.Log($"hovering over cards: {card.cardName}");
-        }
-        else if (card.targetType == TargetType.Friendly && battleSystem.playerBattlers.Count == 1)
-        {
-            battleSystem.playerBattlers[0].BattleVisuals?.SetHighlight(true);
+            case TargetType.Self:
+                var caster = battleSystem.GetCurrentPlayer();
+                caster.BattleVisuals?.SetHighlight(true);
+                Debug.Log($"Auto-highlighting self: {caster.Name}");
+                break;
+
+            case TargetType.Friendly:
+                if (battleSystem.playerBattlers.Count == 1)
+                {
+                    var friendlyTarget = battleSystem.playerBattlers[0];
+                    friendlyTarget.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Auto-highlighting friendly target: {friendlyTarget.Name}");
+                }
+                break;
+
+            case TargetType.Enemy:
+                if (battleSystem.enemyBattlers.Count == 1)
+                {
+                    var enemyTarget = battleSystem.enemyBattlers[0];
+                    enemyTarget.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Auto-highlighting enemy target: {enemyTarget.Name}");
+                }
+                break;
+
+            case TargetType.All:
+                foreach (var entity in battleSystem.allBattlers)
+                {
+                    entity.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all entities: {entity.Name}");
+                }
+                break;
+
+            case TargetType.AllFriendly:
+                foreach (var friendly in battleSystem.playerBattlers)
+                {
+                    friendly.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all friendly entities: {friendly.Name}");
+                }
+                break;
+
+            case TargetType.AllEnemy:
+                foreach (var enemy in battleSystem.enemyBattlers)
+                {
+                    enemy.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all enemy entities: {enemy.Name}");
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"Unhandled TargetType: {card.targetType}");
+                break;
         }
     }
+
 
     public void ClearHighlights()
     {
@@ -277,7 +380,8 @@ public class CardManager : MonoBehaviour
     }
 
 
-    private GameObject InstantiateCardVisual(Card card)
+    //Disket (Changed return type to DisplayCard)
+    private DisplayCard InstantiateCardVisual(Card card)
     {
         if (cardPrefab == null)
         {
@@ -285,7 +389,7 @@ public class CardManager : MonoBehaviour
             return null;
         }
 
-        Transform handTransform = GameObject.Find("Hand").transform; // Replace "Hand" with the correct name of your hand UI
+        Transform handTransform = GameObject.Find("Hand").transform;
         if (handTransform == null)
         {
             Debug.LogError("Hand UI panel not found in the scene.");
@@ -304,16 +408,22 @@ public class CardManager : MonoBehaviour
             Debug.LogWarning("Card prefab is missing a DisplayCard component.");
         }
 
-        return cardVisual;
+        //Disket
+        return cardVisual.GetComponent<DisplayCard>();
     }
 
 
     public void OnCardRelease(Card card)
     {
         ClearHighlights();
+    }
 
-        var cardTransform = cardPrefab.transform;
-        var arcRenderer = cardTransform.GetComponentInChildren<ArcRenderer>();
+    public void OnCardRelease(DisplayCard card)
+    {
+        OnCardRelease(card.card);
+
+        // Find the ArcRenderer on the selected card
+        var arcRenderer = card.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
 
         if (arcRenderer != null)
         {
@@ -325,16 +435,15 @@ public class CardManager : MonoBehaviour
     {
         if (selectedCard == card)
         {
-            Debug.Log("Card already selected, deselecting.");
+            // Debug.Log("Card already selected, deselecting.");
             OnCardRelease(card);
             DeselectCard();
         }
         else
         {
             if (selectedCard != null) OnCardRelease(selectedCard);
-            Debug.Log($"Card selected: {card.cardName}");
+            // Debug.Log($"Card selected: {card.cardName}");
             SelectCard(card);
-            OnCardHold(card); // Enable ArcRenderer on hold
         }
     }
 
@@ -351,7 +460,6 @@ public class CardManager : MonoBehaviour
             if (displayCard != null && displayCard.card == card)
             {
                 Destroy(child.gameObject); // Destroy the visual GameObject
-                Debug.Log($"Card visual destroyed: {card.cardName}");
                 break;
             }
         }
@@ -364,7 +472,7 @@ public class CardManager : MonoBehaviour
         if (cardHover != null)
         {
             cardHover.InitializeHover();
-            Debug.Log("Initialized CardHover script for card.");
+            // Debug.Log("Initialized CardHover script for card.");
         }
 
         // Initialize CardOverlapHandler script
@@ -372,7 +480,7 @@ public class CardManager : MonoBehaviour
         if (cardOverlap != null)
         {
             cardOverlap.InitializeOverlap();
-            Debug.Log("Initialized CardOverlapHandler script for card.");
+            // Debug.Log("Initialized CardOverlapHandler script for card.");
         }
     }
 

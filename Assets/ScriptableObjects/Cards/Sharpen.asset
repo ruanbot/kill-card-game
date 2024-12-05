@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa88e1585c8e5e4a93e4d3ccc36b68d, type: 3}
+  m_Name: Sharpen
+  m_EditorClassIdentifier: 
+  cardName: Sharpen
+  cardDescription: Increase Slash attacks by 50%
+  artwork: {fileID: -827120969, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
+  manaCost: 1
+  cardCost: 1
+  cardRarity: 0
+  heroClass: 0
+  targetType: 1
+  damageType: 0
+  damageAmount: 0
+  BuffedDamageType: 0
+  BuffPercentage: 0.5

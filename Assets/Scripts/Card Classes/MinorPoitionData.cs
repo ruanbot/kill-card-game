@@ -1,8 +1,12 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Cards/MinorPotionData")]
-public class MinorPotionDataData : Card
+public class MinorPotionData : Card
 {
+    public MinorPotionData()
+    {
+        targetType = TargetType.Friendly;
+    }
 
     public override void Use(BattleEntities caster, BattleEntities target)
     {
@@ -11,7 +15,7 @@ public class MinorPotionDataData : Card
         cardEffect.Heal(caster, 2);
 
         Debug.Log($"{cardName}: Caster heals for 2 HP.");
-        
+
     }
 
     public override void Upgrade()

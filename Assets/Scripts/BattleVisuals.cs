@@ -139,28 +139,28 @@ public class BattleVisuals : MonoBehaviour
 
         OnTargetHover();
         
-        Debug.Log("MOUSEOVER");
+        // Debug.Log("MOUSEOVER");
     }
 
     public void SubscribeToTargetSelected(Action<BattleVisuals> listener)
     {
         TargetSelected -= listener;
         TargetSelected += listener;
-        Debug.Log($"Subscribed {listener.Method.Name} to TargetSelected event on {gameObject.name}");
+        // Debug.Log($"Subscribed {listener.Method.Name} to TargetSelected event on {gameObject.name}");
     }
     
     public void SubscribeToTargetHovering(Action<BattleVisuals> listener)
     {
         HoveringOnTarget -= listener;
         HoveringOnTarget += listener;
-        Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTarget event on {gameObject.name}");
+        // Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTarget event on {gameObject.name}");
     }
     
     public void SubscribeToTargetHoveringEnded(Action<BattleVisuals> listener)
     {
         HoveringOnTargetEnded -= listener;
         HoveringOnTargetEnded += listener;
-        Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTargetEnded event on {gameObject.name}");
+        // Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTargetEnded event on {gameObject.name}");
     }
 
 

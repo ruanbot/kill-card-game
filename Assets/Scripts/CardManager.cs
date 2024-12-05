@@ -25,7 +25,7 @@ public class CardManager : MonoBehaviour
     private bool isHandInitialized = false;
     private bool highlightLock = false;
     public Card currentlyHoveredCard;
-    
+
     //Disket
     private List<DisplayCard> displayCardList;
 
@@ -64,7 +64,6 @@ public class CardManager : MonoBehaviour
             {
                 InitializeAllCardScripts();
                 isHandInitialized = true;
-                Debug.Log("Hand fully initialized with 5 cards.");
             }
         }
 
@@ -173,6 +172,33 @@ public class CardManager : MonoBehaviour
                 EnableTargeting(battleSystem.playerBattlers);
             }
         }
+        else if (card.targetType == TargetType.AllEnemy)
+        {
+            // Immediately execute the card effect on all enemies
+            Debug.Log($"Playing {card.cardName} on all enemies.");
+            foreach (var enemy in battleSystem.enemyBattlers)
+            {
+                PlayCard(card, caster, enemy);
+            }
+        }
+        else if (card.targetType == TargetType.AllFriendly)
+        {
+            // Immediately execute the card effect on all friendly entities
+            Debug.Log($"Playing {card.cardName} on all friendly entities.");
+            foreach (var friendly in battleSystem.playerBattlers)
+            {
+                PlayCard(card, caster, friendly);
+            }
+        }
+        else if (card.targetType == TargetType.All)
+        {
+            // Immediately execute the card effect on all entities
+            Debug.Log($"Playing {card.cardName} on all entities.");
+            foreach (var entity in battleSystem.allBattlers)
+            {
+                PlayCard(card, caster, entity);
+            }
+        }
 
     }
 
@@ -181,7 +207,7 @@ public class CardManager : MonoBehaviour
         // Find the ArcRenderer on the selected card
         var arcRenderer = displayCard.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
         selectedVisual = displayCard;
-        
+
         if (selectedVisual != null)
         {
             selectedVisual.GetComponentInChildren<CardHover>().SetHover(true);
@@ -201,7 +227,7 @@ public class CardManager : MonoBehaviour
         {
             selectedVisual.GetComponentInChildren<CardHover>().SetHover(false);
         }
-        Debug.Log("Card deselected.");
+
     }
 
     private void EnableTargeting(List<BattleEntities> targets)
@@ -220,7 +246,7 @@ public class CardManager : MonoBehaviour
     {
         BattleEntities target = battleSystem.allBattlers.Find(entity => entity.BattleVisuals == targetVisual);
 
-        Debug.Log("Target Selected On Card Manager");
+
 
         if (target == null)
         {
@@ -248,12 +274,8 @@ public class CardManager : MonoBehaviour
         //Disket
         if (selectedVisual != null)
         {
-            
+
             selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().SetTarget(targetVisual.transform.position);
-        }
-        else
-        {
-            Debug.Log("SELECTED VISUAL IS NULL");
         }
     }
 
@@ -261,7 +283,7 @@ public class CardManager : MonoBehaviour
     {
         if (selectedVisual == null)
             return;
-        
+
         selectedVisual.gameObject.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>().DeselectTarget();
     }
 
@@ -279,37 +301,65 @@ public class CardManager : MonoBehaviour
             Debug.Log("Highlighting locked.");
             return; // Skip highlighting if locked
         }
-        if (card.targetType == TargetType.All)
+
+        Debug.Log($"HighlightTargets called for {card.cardName} with TargetType: {card.targetType}");
+
+        switch (card.targetType)
         {
-            foreach (var entity in battleSystem.allBattlers)
-            {
-                entity.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.AllEnemy)
-        {
-            foreach (var enemy in battleSystem.enemyBattlers)
-            {
-                enemy.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.AllFriendly)
-        {
-            foreach (var friendly in battleSystem.playerBattlers)
-            {
-                friendly.BattleVisuals?.SetHighlight(true);
-            }
-        }
-        else if (card.targetType == TargetType.Enemy && battleSystem.enemyBattlers.Count == 1)
-        {
-            battleSystem.enemyBattlers[0].BattleVisuals?.SetHighlight(true);
-            Debug.Log($"hovering over cards: {card.cardName}");
-        }
-        else if (card.targetType == TargetType.Friendly && battleSystem.playerBattlers.Count == 1)
-        {
-            battleSystem.playerBattlers[0].BattleVisuals?.SetHighlight(true);
+            case TargetType.Self:
+                var caster = battleSystem.GetCurrentPlayer();
+                caster.BattleVisuals?.SetHighlight(true);
+                Debug.Log($"Auto-highlighting self: {caster.Name}");
+                break;
+
+            case TargetType.Friendly:
+                if (battleSystem.playerBattlers.Count == 1)
+                {
+                    var friendlyTarget = battleSystem.playerBattlers[0];
+                    friendlyTarget.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Auto-highlighting friendly target: {friendlyTarget.Name}");
+                }
+                break;
+
+            case TargetType.Enemy:
+                if (battleSystem.enemyBattlers.Count == 1)
+                {
+                    var enemyTarget = battleSystem.enemyBattlers[0];
+                    enemyTarget.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Auto-highlighting enemy target: {enemyTarget.Name}");
+                }
+                break;
+
+            case TargetType.All:
+                foreach (var entity in battleSystem.allBattlers)
+                {
+                    entity.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all entities: {entity.Name}");
+                }
+                break;
+
+            case TargetType.AllFriendly:
+                foreach (var friendly in battleSystem.playerBattlers)
+                {
+                    friendly.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all friendly entities: {friendly.Name}");
+                }
+                break;
+
+            case TargetType.AllEnemy:
+                foreach (var enemy in battleSystem.enemyBattlers)
+                {
+                    enemy.BattleVisuals?.SetHighlight(true);
+                    Debug.Log($"Highlighting all enemy entities: {enemy.Name}");
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"Unhandled TargetType: {card.targetType}");
+                break;
         }
     }
+
 
     public void ClearHighlights()
     {
@@ -339,7 +389,7 @@ public class CardManager : MonoBehaviour
             return null;
         }
 
-        Transform handTransform = GameObject.Find("Hand").transform; // Replace "Hand" with the correct name of your hand UI
+        Transform handTransform = GameObject.Find("Hand").transform;
         if (handTransform == null)
         {
             Debug.LogError("Hand UI panel not found in the scene.");
@@ -367,32 +417,32 @@ public class CardManager : MonoBehaviour
     {
         ClearHighlights();
     }
-    
+
     public void OnCardRelease(DisplayCard card)
     {
-       OnCardRelease(card.card);
-       
-       // Find the ArcRenderer on the selected card
-       var arcRenderer = card.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
+        OnCardRelease(card.card);
 
-       if (arcRenderer != null)
-       {
-           arcRenderer.enabled = false; // Disable ArcRenderer
-       }
+        // Find the ArcRenderer on the selected card
+        var arcRenderer = card.GetComponentInChildren<CardHover>().GetComponentInChildren<ArcDotControllerUI>();
+
+        if (arcRenderer != null)
+        {
+            arcRenderer.enabled = false; // Disable ArcRenderer
+        }
     }
 
     public void OnCardClicked(Card card)
     {
         if (selectedCard == card)
         {
-            Debug.Log("Card already selected, deselecting.");
+            // Debug.Log("Card already selected, deselecting.");
             OnCardRelease(card);
             DeselectCard();
         }
         else
         {
             if (selectedCard != null) OnCardRelease(selectedCard);
-            Debug.Log($"Card selected: {card.cardName}");
+            // Debug.Log($"Card selected: {card.cardName}");
             SelectCard(card);
         }
     }
@@ -410,7 +460,6 @@ public class CardManager : MonoBehaviour
             if (displayCard != null && displayCard.card == card)
             {
                 Destroy(child.gameObject); // Destroy the visual GameObject
-                Debug.Log($"Card visual destroyed: {card.cardName}");
                 break;
             }
         }
@@ -423,7 +472,7 @@ public class CardManager : MonoBehaviour
         if (cardHover != null)
         {
             cardHover.InitializeHover();
-            Debug.Log("Initialized CardHover script for card.");
+            // Debug.Log("Initialized CardHover script for card.");
         }
 
         // Initialize CardOverlapHandler script
@@ -431,7 +480,7 @@ public class CardManager : MonoBehaviour
         if (cardOverlap != null)
         {
             cardOverlap.InitializeOverlap();
-            Debug.Log("Initialized CardOverlapHandler script for card.");
+            // Debug.Log("Initialized CardOverlapHandler script for card.");
         }
     }
 

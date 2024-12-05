@@ -3,6 +3,11 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Cards/FrenzyData")]
 public class FrenzyData : Card
 {
+    public FrenzyData()
+    {
+        targetType = TargetType.Self;
+    }
+
     public override void Use(BattleEntities caster, BattleEntities target)
     {
         var cardEffect = FindFirstObjectByType<CardEffect>();

@@ -89,14 +89,14 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler,IPointerUpHandler
         
         _isHolding = true;
         GetComponentInChildren<ArcDotControllerUI>().enabled = true;
-        Debug.Log("DOWN");
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         _isHolding = false;
         GetComponentInChildren<ArcDotControllerUI>().enabled = false;
-        Debug.Log("UP");
+        
         
         var cardManager = FindFirstObjectByType<CardManager>();
         cardManager.DeselectCard();

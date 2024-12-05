@@ -3,25 +3,34 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Cards/SharpenData")]
 public class SharpenData : Card
 {
-    public DamageType BuffedDamageType;
+    public DamageType BuffedDamageType = DamageType.Slash;
     public float BuffPercentage;
 
     public SharpenData()
     {
         targetType = TargetType.Friendly;
     }
+    
     public override void Use(BattleEntities caster, BattleEntities target)
     {
         // Apply the buff to the target
-        var buff = new Buff
+        var newBuff = new Buff
         {
             DamageType = BuffedDamageType,
-            Percentage = BuffPercentage
+            Percentage = BuffPercentage,
+            RemainingUses = 3
         };
 
-        target.ApplyBuff(buff);
+        target.ApplyBuff(newBuff);
         Debug.Log($"{cardName} used: {target.Name} now has {BuffPercentage}% increased {BuffedDamageType} damage.");
+
+        // Log all active buffs
+        foreach (var activeBuff in target.ActiveBuffs)
+        {
+            // Debug.Log($"Active Buff - DamageType: {activeBuff.DamageType}, Percentage: {activeBuff.Percentage}%");
+        }
     }
+
 
     public override void Upgrade()
     {

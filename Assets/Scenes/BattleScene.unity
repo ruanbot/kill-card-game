@@ -255,7 +255,7 @@ Transform:
   m_GameObject: {fileID: 106091711}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4, y: 1.3, z: -3.5}
+  m_LocalPosition: {x: 5, y: 1.3, z: -3.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1155,7 +1155,6 @@ GameObject:
   - component: {fileID: 868460584}
   - component: {fileID: 868460583}
   - component: {fileID: 868460585}
-  - component: {fileID: 868460586}
   m_Layer: 5
   m_Name: Energy Art
   m_TagString: Untagged
@@ -1195,7 +1194,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_Material: {fileID: -876546973899608171, guid: 043a81507a81c684bbdb7b4a563a3466,
+    type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1236,21 +1236,6 @@ MonoBehaviour:
   energyText: {fileID: 211433840}
   energyIncreaseInterval: 1
   maxEnergy: 8
---- !u!114 &868460586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868460581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 0
 --- !u!1 &877153560
 GameObject:
   m_ObjectHideFlags: 0
@@ -1869,7 +1854,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1846740914}
         m_TargetAssemblyTypeName: PlayerDeck, Assembly-CSharp
-        m_MethodName: ManualDrawCard
+        m_MethodName: DrawCard
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2349,7 +2334,7 @@ Transform:
   m_GameObject: {fileID: 1771666091}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4, y: 1.3, z: -6}
+  m_LocalPosition: {x: 5, y: 1.3, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2386,14 +2371,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck:
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
+  - {fileID: 11400000, guid: 277a4d170e11424479ca1d2eb69055c9, type: 2}
+  - {fileID: 11400000, guid: 277a4d170e11424479ca1d2eb69055c9, type: 2}
+  - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
+  - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
+  - {fileID: 11400000, guid: 07097ab24d280e544a9ce20d9989f30d, type: 2}
+  - {fileID: 11400000, guid: 07097ab24d280e544a9ce20d9989f30d, type: 2}
+  - {fileID: 11400000, guid: 3fe5a7591ec3fd2428250ec86ef29bba, type: 2}
+  - {fileID: 11400000, guid: 3fe5a7591ec3fd2428250ec86ef29bba, type: 2}
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
@@ -2523,13 +2508,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1982953390}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08715597, y: -0, z: -0, w: 0.9961947}
-  m_LocalPosition: {x: 0, y: 2.66, z: -11.5}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 0, y: 3.09, z: -11.38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 10, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
 --- !u!114 &1982953394
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,14 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42e68d2bdfb22804ea853224aae7548e, type: 3}
   m_Name: Cleave
   m_EditorClassIdentifier: 
-  cardName: 
-  cardDescription: 
-  artwork: {fileID: 0}
-  manaCost: 0
+  cardName: Cleave
+  cardDescription: Deal 2 Slash to all enemy
+  artwork: {fileID: -452983286, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
+  manaCost: 2
   cardCost: 0
   cardRarity: 0
   heroClass: 0
   targetType: 5
   damageType: 0
-  damageAmount: 0
   Damage: 2

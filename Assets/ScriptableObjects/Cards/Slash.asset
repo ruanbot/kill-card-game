@@ -16,8 +16,9 @@ MonoBehaviour:
   cardDescription: Deal 2 Slash Damage
   artwork: {fileID: -1868606538, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
   manaCost: 1
-  cardClass: Warrior
   cardCost: 1
-  rarity: Common
+  cardRarity: 0
+  heroClass: 0
   targetType: 2
+  damageType: 0
   Damage: 2

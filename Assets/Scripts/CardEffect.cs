@@ -8,14 +8,19 @@ public class CardEffect : MonoBehaviour
         int finalDamage = Mathf.FloorToInt(damage * multiplier);
 
         target.TakeDamage(finalDamage, damageType);
+        target.BattleVisuals?.ShowPopup(finalDamage, true);
         Debug.Log($"Dealt {finalDamage} {damageType} damage to {target.Name} (Multiplier: {multiplier})");
     }
 
 
     public void Heal(BattleEntities target, int amount)
     {
+        int previousHealth = target.CurrentHealth;
         target.CurrentHealth += amount;
         target.CurrentHealth = Mathf.Min(target.CurrentHealth, target.MaxHealth);
+        int healedAmount = target.CurrentHealth - previousHealth;
+
+        target.BattleVisuals?.ShowPopup(healedAmount, false);
         target.BattleVisuals.SyncWithEntity(target);
     }
 

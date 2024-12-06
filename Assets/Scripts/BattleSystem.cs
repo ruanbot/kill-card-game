@@ -215,6 +215,7 @@ public class BattleEntities
 
         Debug.Log($"{Name} took {reducedDamage} {damageType} damage (Resistance: {resistance * 100}%)");
 
+
         if (CurrentHealth == 0)
         {
             HandleDeath();

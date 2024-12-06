@@ -129,6 +129,8 @@ MonoBehaviour:
   healthBar: {fileID: 9004392679526182850}
   hpText: {fileID: 3605641396773337172}
   levelText: {fileID: 930707934992063119}
+  floatingText: {fileID: 1044179797038453662, guid: ba22237afd83f404b981620b1ff598d6,
+    type: 3}
   highlightObject: {fileID: 1444651463546292655}
 --- !u!136 &4005386135433760613
 CapsuleCollider:

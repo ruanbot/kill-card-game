@@ -950,7 +950,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.5, y: 1.3, z: -5}
-  m_LocalScale: {x: 0.95581, y: 0.95581, z: 0.95581}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3208783365733446607}
@@ -977,10 +977,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5829838
-  m_Height: 2.0056243
+  m_Radius: 0.5694731
+  m_Height: 2.1263862
   m_Direction: 1
-  m_Center: {x: -0.1435222, y: -0.18407702, z: -0.35330117}
+  m_Center: {x: -0.04864186, y: -0.24445799, z: -0.35330117}
 --- !u!95 &5657716529663712692
 Animator:
   serializedVersion: 7
@@ -1018,6 +1018,8 @@ MonoBehaviour:
   healthBar: {fileID: 8643922665059065874}
   hpText: {fileID: 105911423920096684}
   levelText: {fileID: 1252533205829474349}
+  floatingText: {fileID: 1044179797038453662, guid: ba22237afd83f404b981620b1ff598d6,
+    type: 3}
   highlightObject: {fileID: 4825391281897459492}
 --- !u!212 &3229249629120740094
 SpriteRenderer:

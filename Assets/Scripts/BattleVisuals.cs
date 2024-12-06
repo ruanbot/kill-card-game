@@ -8,12 +8,13 @@ public class BattleVisuals : MonoBehaviour
 {
     public event Action<BattleVisuals> TargetSelected; // Public event
     public event Action<BattleVisuals> HoveringOnTarget; //Public Event
-    
+
     public event Action<BattleVisuals> HoveringOnTargetEnded; //Public Event
 
     [SerializeField] private Slider healthBar;
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private GameObject floatingText;
 
     public int currentHealth { get; private set; }
     public int maxHealth { get; private set; }
@@ -76,9 +77,34 @@ public class BattleVisuals : MonoBehaviour
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
         }
+    }
+
+    public void ShowPopup(int amount, bool isDamage)
+    {
+        // Offset the popup position slightly above the entity
+        Vector3 popupPosition = transform.position + new Vector3(0, 0, -0.1f);
+
+        GameObject popup = Instantiate(floatingText, popupPosition, Quaternion.identity);
+
+        // Set the popup's parent to the battle entity but keep the world position
+        popup.transform.SetParent(transform, worldPositionStays: true);
+
+        popup.GetComponent<Renderer>().sortingLayerName = "UI"; // Adjust Sorting Layer Name
+        popup.GetComponent<Renderer>().sortingOrder = 10; // Ensure a high sorting order
+
+        var textComponent = popup.GetComponent<TextMeshPro>();
+        if (textComponent != null)
+        {
+            // Set the text and color based on whether it's damage or healing
+            textComponent.text = amount.ToString();
+            textComponent.color = isDamage ? Color.yellow : Color.green; // Yellow for damage, green for heal
+        }
 
 
     }
+
+
+
 
     public void PlayAttackAnimation()
     {
@@ -108,7 +134,7 @@ public class BattleVisuals : MonoBehaviour
     {
         anim.SetTrigger(IS_DEAD_PARAM);
     }
-    
+
     private void OnMouseEnter()
     {
         // Enable the Highlight child object
@@ -138,7 +164,7 @@ public class BattleVisuals : MonoBehaviour
         }
 
         OnTargetHover();
-        
+
         // Debug.Log("MOUSEOVER");
     }
 
@@ -148,14 +174,14 @@ public class BattleVisuals : MonoBehaviour
         TargetSelected += listener;
         // Debug.Log($"Subscribed {listener.Method.Name} to TargetSelected event on {gameObject.name}");
     }
-    
+
     public void SubscribeToTargetHovering(Action<BattleVisuals> listener)
     {
         HoveringOnTarget -= listener;
         HoveringOnTarget += listener;
         // Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTarget event on {gameObject.name}");
     }
-    
+
     public void SubscribeToTargetHoveringEnded(Action<BattleVisuals> listener)
     {
         HoveringOnTargetEnded -= listener;

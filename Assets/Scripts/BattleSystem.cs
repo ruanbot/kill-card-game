@@ -66,6 +66,10 @@ public class BattleSystem : MonoBehaviour
 
                 // Link the visual back to the BattleEntities object
                 tempEntity.BattleVisuals = tempBattleVisuals;
+
+                // Link the BattleEntities object to the BattleVisuals
+                tempBattleVisuals.LinkToEntity(tempEntity);
+
             }
             else
             {
@@ -120,6 +124,9 @@ public class BattleSystem : MonoBehaviour
                 // Link BattleVisuals to both BattleEntities and PartyMember for real-time updates
                 tempEntity.BattleVisuals = tempBattleVisuals;
                 currentParty[i].BattleVisuals = tempBattleVisuals;
+
+                // Link the BattleEntities object to the BattleVisuals
+                tempBattleVisuals.LinkToEntity(tempEntity);
             }
             else
             {
@@ -199,14 +206,15 @@ public class BattleEntities
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
 
-    public void TakeDamage(int damage, DamageType damageType)
+    public int TakeDamage(int damage, DamageType damageType)
     {
         // Check if the entity is immune to this type of damage
         if (Resistances.IsImmune(damageType))
         {
             Debug.Log($"{Name} is immune to {damageType} damage. No damage taken.");
-            return; // Negate damage if immune
+            return 0; // Negate damage if immune
         }
+
         float resistance = Resistances.GetResistance(damageType);
         int reducedDamage = Mathf.FloorToInt(damage * (1 - resistance));
 
@@ -224,6 +232,8 @@ public class BattleEntities
         // Update Visuals
         BattleVisuals?.SyncWithEntity(this);
         BattleVisuals?.PlayHitAnimation();
+
+        return reducedDamage;
     }
 
     private void HandleDeath()

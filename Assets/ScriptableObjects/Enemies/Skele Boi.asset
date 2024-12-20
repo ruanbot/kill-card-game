@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Skele Boi
   m_EditorClassIdentifier: 
   EnemyName: Skele Boi
+  entityPortrait: {fileID: 21300000, guid: 128f9a5f74ee38d49ab596e2ea076722, type: 3}
   Level: 1
   BaseHealth: 6
   CurrentHealth: 3
@@ -25,8 +26,17 @@ MonoBehaviour:
   resistances:
     Slash: 0.5
     Blunt: 0
+    Ranged: 0
     Fire: 0
     Frost: 0
     Lightning: 0
     Dark: 0
     Holy: 0
+    ImmuneSlash: 0
+    ImmuneBlunt: 0
+    ImmuneRanged: 0
+    ImmuneFire: 0
+    ImmuneFrost: 0
+    ImmuneLightning: 0
+    ImmuneDark: 0
+    ImmuneHoly: 0

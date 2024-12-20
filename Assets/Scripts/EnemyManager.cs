@@ -19,6 +19,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemyName == allEnemies[i].EnemyName)
             {
+
                 Enemy newEnemy = new Enemy
                 {
                     EnemyName = allEnemies[i].EnemyName,
@@ -32,6 +33,7 @@ public class EnemyManager : MonoBehaviour
                 };
 
                 currentEnemies.Add(newEnemy);
+
             }
         }
     }

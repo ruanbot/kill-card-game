@@ -15,11 +15,16 @@ public class BattleVisuals : MonoBehaviour
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private GameObject floatingText;
+    [SerializeField] public Image portraitImage;
+
+    private EnemyInfo enemyData;
+    private PartyMemberInfo memberData;
 
     public int currentHealth { get; private set; }
     public int maxHealth { get; private set; }
     private int level;
     private Animator anim;
+
 
     // A reference to the highlight or outline component
     [SerializeField] private GameObject highlightObject;
@@ -35,6 +40,21 @@ public class BattleVisuals : MonoBehaviour
 
     }
 
+    private void SetFromEnemyData()
+    {
+        levelText.text = LEVEL_ABB + enemyData.Level;
+        portraitImage.sprite = enemyData.entityPortrait;
+
+        SetHealthValues(enemyData.CurrentHealth, enemyData.MaxHealth);
+    }
+
+    private void SetFromPartyMemberData()
+    {
+        levelText.text = LEVEL_ABB + memberData.StartingLevel;
+        portraitImage.sprite = memberData.entityPortrait;
+
+        SetHealthValues(memberData.BaseHealth, memberData.BaseHealth);
+    }
 
     public void SetStartingValues(int startHealth, int startMaxHealth, int startLevel)
     {
@@ -137,11 +157,18 @@ public class BattleVisuals : MonoBehaviour
 
     private void OnMouseEnter()
     {
+
         // Enable the Highlight child object
         if (highlightObject != null)
         {
             highlightObject.SetActive(true);
         }
+        // New: Show resistances from BattleEntities
+        if (linkedEntity != null)
+        {
+            TooltipManager.Instance.ShowTooltip(linkedEntity, transform.position);
+        }
+
     }
 
     private void OnMouseExit()
@@ -150,6 +177,8 @@ public class BattleVisuals : MonoBehaviour
         {
             highlightObject.SetActive(false); // Ensure the outline is off initially
         }
+
+        TooltipManager.Instance.HideTooltip();
 
         HoveringOnTargetEnded?.Invoke(this);
     }
@@ -222,4 +251,12 @@ public class BattleVisuals : MonoBehaviour
             highlightObject.SetActive(isActive);
         }
     }
+
+    private BattleEntities linkedEntity;
+
+    public void LinkToEntity(BattleEntities entity)
+    {
+        linkedEntity = entity;
+    }
+
 }

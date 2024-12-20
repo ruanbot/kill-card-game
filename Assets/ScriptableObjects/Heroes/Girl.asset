@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Girl
   m_EditorClassIdentifier: 
   MemberName: Girl
+  entityPortrait: {fileID: 21300000, guid: a1a895a09884f4a458c5d1ae223a2d08, type: 3}
   StartingLevel: 1
   BaseHealth: 12
   BaseStr: 2
@@ -20,3 +21,21 @@ MonoBehaviour:
   MemberBattleVisualPrefab: {fileID: 4730806569165020040, guid: e9dc51b7470b1c34dbac4261a44b7df5,
     type: 3}
   MemberOverworldVisualPrefab: {fileID: 0}
+  targetType: 1
+  resistances:
+    Slash: 0
+    Blunt: 0
+    Ranged: 0
+    Fire: 0
+    Frost: 0
+    Lightning: 0
+    Dark: 0
+    Holy: 0
+    ImmuneSlash: 0
+    ImmuneBlunt: 0
+    ImmuneRanged: 0
+    ImmuneFire: 0
+    ImmuneFrost: 0
+    ImmuneLightning: 0
+    ImmuneDark: 0
+    ImmuneHoly: 0

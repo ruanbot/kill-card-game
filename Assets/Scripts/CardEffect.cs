@@ -5,11 +5,14 @@ public class CardEffect : MonoBehaviour
     public void DealDamage(BattleEntities target, int damage, DamageType damageType)
     {
         float multiplier = target.GetBuffedDamageMultiplier(damageType); // Check if this returns the correct value
-        int finalDamage = Mathf.FloorToInt(damage * multiplier);
+        int initialDamage = Mathf.FloorToInt(damage * multiplier);
 
-        target.TakeDamage(finalDamage, damageType);
-        target.BattleVisuals?.ShowPopup(finalDamage, true);
-        Debug.Log($"Dealt {finalDamage} {damageType} damage to {target.Name} (Multiplier: {multiplier})");
+        // Call TakeDamage and let it calculate the reduced damage after resistances
+        int actualDamage = target.TakeDamage(initialDamage, damageType);
+
+        // target.TakeDamage(initialDamage, damageType);
+        target.BattleVisuals?.ShowPopup(actualDamage, true);
+        Debug.Log($"Dealt {actualDamage} {damageType} damage to {target.Name} (Multiplier: {multiplier})");
     }
 
 

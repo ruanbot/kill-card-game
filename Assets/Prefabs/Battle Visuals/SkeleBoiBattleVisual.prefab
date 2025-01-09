@@ -131,6 +131,9 @@ MonoBehaviour:
   levelText: {fileID: 930707934992063119}
   floatingText: {fileID: 1044179797038453662, guid: ba22237afd83f404b981620b1ff598d6,
     type: 3}
+  portraitImage: {fileID: 0}
+  enemyData: {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
+  memberData: {fileID: 0}
   highlightObject: {fileID: 1444651463546292655}
 --- !u!136 &4005386135433760613
 CapsuleCollider:
@@ -706,7 +709,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535

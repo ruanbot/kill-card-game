@@ -420,7 +420,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -1020,6 +1020,9 @@ MonoBehaviour:
   levelText: {fileID: 1252533205829474349}
   floatingText: {fileID: 1044179797038453662, guid: ba22237afd83f404b981620b1ff598d6,
     type: 3}
+  portraitImage: {fileID: 0}
+  enemyData: {fileID: 0}
+  memberData: {fileID: 11400000, guid: 612fcfb8eaaacfa4fac9c345e4f511c8, type: 2}
   highlightObject: {fileID: 4825391281897459492}
 --- !u!212 &3229249629120740094
 SpriteRenderer:

@@ -2508,6 +2508,7 @@ MonoBehaviour:
   frostResistanceText: {fileID: 6599930996529305404}
   darknessResistanceText: {fileID: 207327394622404219}
   holyResistanceText: {fileID: 8026342322194280122}
+  tooltipOffset: {x: -140, y: -130}
 --- !u!4 &1922304777
 Transform:
   m_ObjectHideFlags: 0

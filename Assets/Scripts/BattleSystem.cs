@@ -192,6 +192,8 @@ public class BattleEntities
         bool isPlayer,
         EntityType entityType,
         DamageResistances resistances = null)
+
+
     {
         Name = name;
         CurrentHealth = currentHealth;

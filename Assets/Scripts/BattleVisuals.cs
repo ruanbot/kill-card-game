@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Reflection;
 
 public class BattleVisuals : MonoBehaviour
 {
@@ -11,14 +12,14 @@ public class BattleVisuals : MonoBehaviour
 
     public event Action<BattleVisuals> HoveringOnTargetEnded; //Public Event
 
-    [SerializeField] private Slider healthBar;
+    [SerializeField] public Slider healthBar;
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private GameObject floatingText;
     [SerializeField] public Image portraitImage;
 
-    private EnemyInfo enemyData;
-    private PartyMemberInfo memberData;
+    public EnemyInfo enemyData;
+    public PartyMemberInfo memberData;
 
     public int currentHealth { get; private set; }
     public int maxHealth { get; private set; }
@@ -123,7 +124,15 @@ public class BattleVisuals : MonoBehaviour
 
     }
 
+    public void InitializeWithEnemy(EnemyInfo info)
+    {
+        enemyData = info;
+    }
 
+    public void InitializeWithPartyMember(PartyMemberInfo info)
+    {
+        memberData = info;
+    }
 
 
     public void PlayAttackAnimation()
@@ -163,11 +172,11 @@ public class BattleVisuals : MonoBehaviour
         {
             highlightObject.SetActive(true);
         }
-        // New: Show resistances from BattleEntities
-        if (linkedEntity != null)
-        {
-            TooltipManager.Instance.ShowTooltip(linkedEntity, transform.position);
-        }
+        //// New: Show resistances from BattleEntities
+        //if (linkedEntity != null)
+        //{
+        //    TooltipManager.Instance.ShowTooltip(linkedEntity, transform.position);
+        //}
 
     }
 
@@ -182,8 +191,6 @@ public class BattleVisuals : MonoBehaviour
 
         HoveringOnTargetEnded?.Invoke(this);
     }
-
-
 
     private void OnMouseOver()
     {
@@ -252,11 +259,22 @@ public class BattleVisuals : MonoBehaviour
         }
     }
 
+    public BattleEntities LinkedEntity => linkedEntity;
+
     private BattleEntities linkedEntity;
 
     public void LinkToEntity(BattleEntities entity)
     {
         linkedEntity = entity;
+        TooltipManager.Instance.RegisterHoverEvents(this);
     }
+
+    private void OnDestroy()
+    {
+        TooltipManager.Instance.UnregisterHoverEvents(this);
+    }
+
+
+
 
 }

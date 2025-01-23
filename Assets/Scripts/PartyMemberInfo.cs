@@ -6,6 +6,7 @@ using UnityEngine;
 public class PartyMemberInfo : ScriptableObject
 {
     public string MemberName;
+    public Sprite entityPortrait;
     public int StartingLevel;
     public int BaseHealth;
     public int BaseStr;

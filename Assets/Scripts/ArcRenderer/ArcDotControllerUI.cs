@@ -14,6 +14,10 @@ public class ArcDotControllerUI : MonoBehaviour
 
     private Vector3 _worldTarget;
     private bool _isOnMouse;
+    
+    //Line
+    [SerializeField] private bool _isUsingLine;
+    public ArcLineRendererUI arcLineRendererUI;
 
     private void Awake()
     {
@@ -25,7 +29,8 @@ public class ArcDotControllerUI : MonoBehaviour
 
     private void OnEnable()
     {
-        arcRenderer.arrowInstance.gameObject.SetActive(true);
+        if(!_isUsingLine)
+            arcRenderer.arrowInstance.gameObject.SetActive(true);
     }
 
     private void OnDisable()
@@ -36,6 +41,10 @@ public class ArcDotControllerUI : MonoBehaviour
         }
         
         arcRenderer.arrowInstance.gameObject.SetActive(false);
+        
+        //Line
+
+        arcLineRendererUI.lineRenderer.points = Array.Empty<Vector2>();
     }
 
     void Update()
@@ -52,15 +61,32 @@ public class ArcDotControllerUI : MonoBehaviour
         }
 
 
-        if (isUsingCameraCanvas)
+        if (!_isUsingLine)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform, target, cameraUI, out Vector2 localPoint);
-            arcRenderer.DrawBetweenPoints(Vector3.zero, localPoint);
+            if (isUsingCameraCanvas)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform, target, cameraUI, out Vector2 localPoint);
+                arcRenderer.DrawBetweenPoints(Vector3.zero, localPoint);
+            }
+            else
+            {
+                arcRenderer.DrawBetweenPoints(Vector3.zero, (Vector2)target );
+            }
         }
         else
         {
-            arcRenderer.DrawBetweenPoints(Vector3.zero, (Vector2)target );
+            if (isUsingCameraCanvas)
+            {
+                Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(cameraUI, _rectTransform.TransformPoint(Vector3.zero - new Vector3(0,50,0)));
+                arcLineRendererUI.DrawBetweenPoints(screenPoint, target);
+            }
+            else
+            {
+                arcLineRendererUI.DrawBetweenPoints(Vector3.zero, (Vector2)target );
+            }
         }
+        
+       
     }
 
     public void SetTarget(Vector3 target)

@@ -18,8 +18,8 @@ using UnityEngine.UI;
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             Vector3 rectScreenWorldPosition = rectTransform.TransformPoint(Vector3.zero);
-            Debug.Log(rectTransform.TransformPoint(Vector3.zero));
-            Debug.Log(canvasCamera.WorldToScreenPoint(rectScreenWorldPosition));
+            //Debug.Log(rectTransform.TransformPoint(Vector3.zero));
+            //Debug.Log(canvasCamera.WorldToScreenPoint(rectScreenWorldPosition));
             vh.Clear();
 
             float lastUVX = 0;

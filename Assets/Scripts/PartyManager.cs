@@ -20,6 +20,7 @@ public class PartyManager : MonoBehaviour
         {
             if (allMembers[i].MemberName == memberName)
             {
+
                 PartyMember newPartyMember = new PartyMember
                 {
                     MemberName = allMembers[i].MemberName,

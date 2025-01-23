@@ -48,7 +48,7 @@ public class CardHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (isHovered || isSelected)
         {
             targetPosition += Vector3.up * hoverHeight;
-            targetPosition += -Vector3.right * hoverHeight;
+            // targetPosition += -Vector3.right * hoverHeight;
         }
 
         hoverTarget.localPosition = Vector3.Lerp(hoverTarget.localPosition, targetPosition, Time.deltaTime * hoverSpeed);

@@ -3,22 +3,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Reflection;
 
 public class BattleVisuals : MonoBehaviour
 {
     public event Action<BattleVisuals> TargetSelected; // Public event
     public event Action<BattleVisuals> HoveringOnTarget; //Public Event
-    
+
     public event Action<BattleVisuals> HoveringOnTargetEnded; //Public Event
 
-    [SerializeField] private Slider healthBar;
+    [SerializeField] public Slider healthBar;
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private GameObject floatingText;
+    [SerializeField] public Image portraitImage;
+
+    public EnemyInfo enemyData;
+    public PartyMemberInfo memberData;
 
     public int currentHealth { get; private set; }
     public int maxHealth { get; private set; }
     private int level;
     private Animator anim;
+
 
     // A reference to the highlight or outline component
     [SerializeField] private GameObject highlightObject;
@@ -34,6 +41,21 @@ public class BattleVisuals : MonoBehaviour
 
     }
 
+    private void SetFromEnemyData()
+    {
+        levelText.text = LEVEL_ABB + enemyData.Level;
+        portraitImage.sprite = enemyData.entityPortrait;
+
+        SetHealthValues(enemyData.CurrentHealth, enemyData.MaxHealth);
+    }
+
+    private void SetFromPartyMemberData()
+    {
+        levelText.text = LEVEL_ABB + memberData.StartingLevel;
+        portraitImage.sprite = memberData.entityPortrait;
+
+        SetHealthValues(memberData.BaseHealth, memberData.BaseHealth);
+    }
 
     public void SetStartingValues(int startHealth, int startMaxHealth, int startLevel)
     {
@@ -76,14 +98,63 @@ public class BattleVisuals : MonoBehaviour
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
         }
+    }
+
+    public void ShowPopup(int amount, bool isDamage)
+    {
+        // Offset the popup position slightly above the entity
+        Vector3 popupPosition = transform.position + new Vector3(0, 0, -0.1f);
+
+        GameObject popup = Instantiate(floatingText, popupPosition, Quaternion.identity);
+
+        // Set the popup's parent to the battle entity but keep the world position
+        popup.transform.SetParent(transform, worldPositionStays: true);
+
+        popup.GetComponent<Renderer>().sortingLayerName = "UI"; // Adjust Sorting Layer Name
+        popup.GetComponent<Renderer>().sortingOrder = 10; // Ensure a high sorting order
+
+        var textComponent = popup.GetComponent<TextMeshPro>();
+        if (textComponent != null)
+        {
+            // Set the text and color based on whether it's damage or healing
+            textComponent.text = amount.ToString();
+            textComponent.color = isDamage ? Color.yellow : Color.green; // Yellow for damage, green for heal
+        }
 
 
     }
+
+    public void InitializeWithEnemy(EnemyInfo info)
+    {
+        enemyData = info;
+    }
+
+    public void InitializeWithPartyMember(PartyMemberInfo info)
+    {
+        memberData = info;
+    }
+
 
     public void PlayAttackAnimation()
     {
         anim.SetTrigger(IS_ATTACK_PARAM);
     }
+
+    public void PlaySpecificAttackAnimation(string animationTrigger)
+    {
+        if (!string.IsNullOrEmpty(animationTrigger))
+        {
+            anim.SetTrigger(animationTrigger);
+            StartCoroutine(WaitForAnimationToEnd(animationTrigger));
+        }
+    }
+
+    private IEnumerator WaitForAnimationToEnd(string animationTrigger)
+    {
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f);
+        anim.ResetTrigger(animationTrigger); // Not strictly necessary for triggers, but safe
+    }
+
 
     public void PlayHitAnimation()
     {
@@ -108,14 +179,21 @@ public class BattleVisuals : MonoBehaviour
     {
         anim.SetTrigger(IS_DEAD_PARAM);
     }
-    
+
     private void OnMouseEnter()
     {
+
         // Enable the Highlight child object
         if (highlightObject != null)
         {
             highlightObject.SetActive(true);
         }
+        //// New: Show resistances from BattleEntities
+        //if (linkedEntity != null)
+        //{
+        //    TooltipManager.Instance.ShowTooltip(linkedEntity, transform.position);
+        //}
+
     }
 
     private void OnMouseExit()
@@ -125,10 +203,10 @@ public class BattleVisuals : MonoBehaviour
             highlightObject.SetActive(false); // Ensure the outline is off initially
         }
 
+        TooltipManager.Instance.HideTooltip();
+
         HoveringOnTargetEnded?.Invoke(this);
     }
-
-
 
     private void OnMouseOver()
     {
@@ -138,7 +216,7 @@ public class BattleVisuals : MonoBehaviour
         }
 
         OnTargetHover();
-        
+
         // Debug.Log("MOUSEOVER");
     }
 
@@ -148,14 +226,14 @@ public class BattleVisuals : MonoBehaviour
         TargetSelected += listener;
         // Debug.Log($"Subscribed {listener.Method.Name} to TargetSelected event on {gameObject.name}");
     }
-    
+
     public void SubscribeToTargetHovering(Action<BattleVisuals> listener)
     {
         HoveringOnTarget -= listener;
         HoveringOnTarget += listener;
         // Debug.Log($"Subscribed {listener.Method.Name} to HoveringOnTarget event on {gameObject.name}");
     }
-    
+
     public void SubscribeToTargetHoveringEnded(Action<BattleVisuals> listener)
     {
         HoveringOnTargetEnded -= listener;
@@ -196,4 +274,23 @@ public class BattleVisuals : MonoBehaviour
             highlightObject.SetActive(isActive);
         }
     }
+
+    public BattleEntities LinkedEntity => linkedEntity;
+
+    private BattleEntities linkedEntity;
+
+    public void LinkToEntity(BattleEntities entity)
+    {
+        linkedEntity = entity;
+        TooltipManager.Instance.RegisterHoverEvents(this);
+    }
+
+    private void OnDestroy()
+    {
+        TooltipManager.Instance.UnregisterHoverEvents(this);
+    }
+
+
+
+
 }

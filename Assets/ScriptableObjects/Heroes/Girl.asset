@@ -15,7 +15,7 @@ MonoBehaviour:
   MemberName: Girl
   entityPortrait: {fileID: 21300000, guid: a1a895a09884f4a458c5d1ae223a2d08, type: 3}
   StartingLevel: 1
-  BaseHealth: 999
+  BaseHealth: 12
   BaseStr: 2
   BaseInitiative: 5
   MemberBattleVisualPrefab: {fileID: 4730806569165020040, guid: e9dc51b7470b1c34dbac4261a44b7df5,

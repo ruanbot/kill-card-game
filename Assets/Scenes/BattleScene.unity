@@ -651,6 +651,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allEnemies:
   - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
+  - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
+  - {fileID: 11400000, guid: 47ea1a0f05b56824d95a056bf3a725f2, type: 2}
   currentEnemies: []
 --- !u!1 &379990341
 GameObject:
@@ -746,7 +748,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -806.11743, y: -286}
+  m_AnchoredPosition: {x: -806.1174, y: -286}
   m_SizeDelta: {x: -1431.955, y: -378.075}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &449546722
@@ -972,50 +974,6 @@ MonoBehaviour:
   discardPileUI: {fileID: 612518788}
   cardPrefab: {fileID: 8672264467982000999, guid: 92e60666cc2eb6346a7b5826fc5d8200,
     type: 3}
---- !u!1 &697177898
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 697177900}
-  - component: {fileID: 697177899}
-  m_Layer: 0
-  m_Name: Enemy Attack System
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &697177899
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 697177898}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab668f5ae9dbd6449afb590d52f6b175, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &697177900
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 697177898}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.90025, y: -3.4549525, z: 54.32945}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &756961607 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6780667341479764535, guid: 81a7315b74ca8bc4e8014d31c89b303f,
@@ -5705,7 +5663,6 @@ SceneRoots:
   - {fileID: 569847283}
   - {fileID: 1922304777}
   - {fileID: 1576017315}
-  - {fileID: 697177900}
   - {fileID: 378802654}
   - {fileID: 1429107117}
   - {fileID: 2068279845}

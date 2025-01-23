@@ -18,6 +18,33 @@ public class BattleSystem : MonoBehaviour
 
     public EnemyManager GetEnemyManager() => enemyManager;
 
+    private Queue<System.Action> attackQueue = new Queue<System.Action>();
+    private bool isProcessing = false;
+
+    public void EnqueueAttack(System.Action attack)
+    { 
+        attackQueue.Enqueue(attack);
+
+        if (!isProcessing)
+        {
+            StartCoroutine(ProcessQueue());
+        }
+    }
+
+    private IEnumerator ProcessQueue()
+    {
+        isProcessing = true;
+
+        while (attackQueue.Count > 0)
+        {
+            var attack = attackQueue.Dequeue();
+            attack.Invoke();
+            yield return new WaitForSeconds(1f); // Delay between attacks
+        }
+
+        isProcessing = false;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,61 +55,66 @@ public class BattleSystem : MonoBehaviour
         CreateEnemyEntities();
     }
 
-    private void CreateEnemyEntities()
+private void CreateEnemyEntities()
+{
+    List<Enemy> currentEnemies = enemyManager.GetCurrentEnemies();
+
+    for (int i = 0; i < currentEnemies.Count; i++)
     {
-        List<Enemy> currentEnemies = enemyManager.GetCurrentEnemies();
+        BattleEntities tempEntity = new BattleEntities();
 
-        for (int i = 0; i < currentEnemies.Count; i++)
+        tempEntity.SetEntityValues(
+            currentEnemies[i].EnemyName,
+            currentEnemies[i].CurrentHealth,
+            currentEnemies[i].MaxHealth,
+            currentEnemies[i].Initiative,
+            currentEnemies[i].Strength,
+            currentEnemies[i].Level,
+            false,
+            EntityType.Enemy,
+            currentEnemies[i].Resistances
+        );
+
+        // Instantiate the visual prefab at the designated spawn point
+        if (currentEnemies[i].EnemyVisualPrefab != null)
         {
-            BattleEntities tempEntity = new BattleEntities();
-
-            tempEntity.SetEntityValues(
-                currentEnemies[i].EnemyName,
-                currentEnemies[i].CurrentHealth,
-                currentEnemies[i].MaxHealth,
-                currentEnemies[i].Initiative,
-                currentEnemies[i].Strength,
-                currentEnemies[i].Level,
-                false,
-                EntityType.Enemy,
-                currentEnemies[i].Resistances
+            GameObject enemyObject = Instantiate(
+                currentEnemies[i].EnemyVisualPrefab,
+                enemySpawnPoints[i].position,
+                Quaternion.identity
             );
 
-            // Instantiate the visual prefab at the designated spawn point and assign to BattleVisuals
-            if (currentEnemies[i].EnemyVisualPrefab != null)
+            // Get the BattleVisuals component from the instantiated object
+            BattleVisuals tempBattleVisuals = enemyObject.GetComponent<BattleVisuals>();
+            tempBattleVisuals.SetStartingValues(
+                currentEnemies[i].CurrentHealth,
+                currentEnemies[i].MaxHealth,
+                currentEnemies[i].Level
+            );
+
+            // Link the visual back to the BattleEntities object
+            tempEntity.BattleVisuals = tempBattleVisuals;
+
+            // Link the BattleEntities object to the BattleVisuals
+            tempBattleVisuals.LinkToEntity(tempEntity);
+
+            // Pass the BattleEntities reference to the EnemyBehavior script
+            var enemyBehavior = enemyObject.GetComponent<EnemyBehavior>();
+            if (enemyBehavior != null)
             {
-                BattleVisuals tempBattleVisuals = Instantiate(
-                    currentEnemies[i].EnemyVisualPrefab,
-                    enemySpawnPoints[i].position,
-                    Quaternion.identity
-                ).GetComponent<BattleVisuals>();
-
-                // Initialize visual with enemy data
-                tempBattleVisuals.SetStartingValues(
-                    currentEnemies[i].CurrentHealth,
-                    currentEnemies[i].MaxHealth,
-                    currentEnemies[i].Level
-                );
-
-                // Link the visual back to the BattleEntities object
-                tempEntity.BattleVisuals = tempBattleVisuals;
-
-                // Link the BattleEntities object to the BattleVisuals
-                tempBattleVisuals.LinkToEntity(tempEntity);
-
+                enemyBehavior.Initialize(tempEntity);
             }
-            else
-            {
-                Debug.LogWarning($"EnemyVisualPrefab is not assigned for {currentEnemies[i].EnemyName} in EnemyInfo.");
-            }
-
-            allBattlers.Add(tempEntity);
-            enemyBattlers.Add(tempEntity);
-
-            // Debug.Log($"Enemy created: {tempEntity.Name}, EntityType: {tempEntity.EntityType}");
-
         }
+        else
+        {
+            Debug.LogWarning($"EnemyVisualPrefab is not assigned for {currentEnemies[i].EnemyName} in EnemyInfo.");
+        }
+
+        allBattlers.Add(tempEntity);
+        enemyBattlers.Add(tempEntity);
     }
+}
+
 
 
     private void CreatePartyEntities()
@@ -127,6 +159,7 @@ public class BattleSystem : MonoBehaviour
 
                 // Link the BattleEntities object to the BattleVisuals
                 tempBattleVisuals.LinkToEntity(tempEntity);
+
             }
             else
             {

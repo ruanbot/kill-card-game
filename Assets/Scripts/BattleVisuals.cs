@@ -140,6 +140,22 @@ public class BattleVisuals : MonoBehaviour
         anim.SetTrigger(IS_ATTACK_PARAM);
     }
 
+    public void PlaySpecificAttackAnimation(string animationTrigger)
+    {
+        if (!string.IsNullOrEmpty(animationTrigger))
+        {
+            anim.SetTrigger(animationTrigger);
+            StartCoroutine(WaitForAnimationToEnd(animationTrigger));
+        }
+    }
+
+    private IEnumerator WaitForAnimationToEnd(string animationTrigger)
+    {
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f);
+        anim.ResetTrigger(animationTrigger); // Not strictly necessary for triggers, but safe
+    }
+
+
     public void PlayHitAnimation()
     {
         CardManager.Instance.LockHighlights(true);

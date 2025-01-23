@@ -8,6 +8,21 @@ public class EnemyManager : MonoBehaviour
     [SerializeField] private List<Enemy> currentEnemies;
     private const float LEVEL_MODIFIER = 0.5f;
 
+    private List<EnemyBehavior> activeEnemies = new List<EnemyBehavior>();
+
+    public void RegisterEnemy(EnemyBehavior enemy)
+    {
+        if (!activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Add(enemy);
+        }
+    }
+
+    public void UnregisterEnemy(EnemyBehavior enemy)
+    {
+        activeEnemies.Remove(enemy);
+    }
+
     private void Awake()
     {
         GenerateEnemyByName("Skele Boi", 1);

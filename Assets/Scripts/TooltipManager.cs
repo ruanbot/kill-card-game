@@ -35,7 +35,7 @@ public class TooltipManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        canvas = FindObjectOfType<Canvas>();
+        canvas = FindFirstObjectByType<Canvas>();
         tooltipPrefab.SetActive(false);
     }
 

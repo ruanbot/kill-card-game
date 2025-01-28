@@ -11,7 +11,7 @@ public class EnemyAttackSystem : MonoBehaviour
             return;
         }
 
-        Debug.Log($"{attack.attackName}: Executing attack from {attacker.Name} on {target.Name}");
+        // Debug.Log($"{attack.attackName}: Executing attack from {attacker.Name} on {target.Name}");
         attack.Execute(attacker, target);
     }
 }

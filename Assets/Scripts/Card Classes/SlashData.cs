@@ -16,19 +16,15 @@ public class SlashData : Card
     {
         var cardEffect = FindFirstObjectByType<CardEffect>();
 
-        // Calculate the damage multiplier from the caster's buffs
-        float multiplier = caster.GetBuffedDamageMultiplier(damageType);
-        // Debug.Log($"Caster {caster.Name} has a multiplier for {damageType}: {multiplier}");
-
-        // Adjust damage based on the multiplier
-        int adjustedDamage = Mathf.FloorToInt(Damage * multiplier);
+        // Ensure base damage is consistent
+        int baseDamage = Damage;
 
         // Play the attack animation
         caster.BattleVisuals?.PlayAttackAnimation();
 
         // Apply the adjusted damage to the target
-        cardEffect.DealDamage(target, adjustedDamage, damageType);
-        Debug.Log($"{cardName} used: {Damage} base damage (adjusted to {adjustedDamage}) on {target.Name}");
+        cardEffect.DealDamage(caster, target, baseDamage, damageType);
+        Debug.Log($"{cardName} used: Base Damage = {baseDamage} on {target.Name}");
     }
 
 

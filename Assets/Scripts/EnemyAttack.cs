@@ -15,15 +15,19 @@ public class EnemyAttack : ScriptableObject
     {
         // Play attack animation
         attacker.BattleVisuals?.PlaySpecificAttackAnimation(animationTrigger);
+ 
 
         // Deal damage
-        float multiplier = target.GetBuffedDamageMultiplier(damageType);
+        float multiplier = attacker.GetBuffedDamageMultiplier(damageType);
         int adjustedDamage = Mathf.FloorToInt(damage * multiplier);
         int actualDamage = target.TakeDamage(adjustedDamage, damageType);
+
+        target.BattleVisuals?.ShowPopup(actualDamage, true);
 
         Debug.Log($"{attackName}: Dealt {actualDamage} {damageType} damage to {target.Name}");
 
         // Apply special effects if any
         specialEffect?.ApplyEffect(target);
+
     }
 }

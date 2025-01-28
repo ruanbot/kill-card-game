@@ -15,11 +15,8 @@ public class CleaveData : Card
     {
         var cardEffect = FindFirstObjectByType<CardEffect>();
 
-        // Calculate the damage multiplier from the caster's buffs
-        float multiplier = caster.GetBuffedDamageMultiplier(damageType);
-
-        // Adjust damage based on the multiplier
-        int adjustedDamage = Mathf.FloorToInt(Damage * multiplier);
+        // Ensure base damage is consistent
+        int baseDamage = Damage;
 
         // Loop through all enemy entities in the scene
         var battleSystem = FindFirstObjectByType<BattleSystem>();
@@ -28,7 +25,7 @@ public class CleaveData : Card
 
         foreach (var enemy in battleSystem.enemyBattlers)
         {
-            cardEffect.DealDamage(enemy, adjustedDamage, damageType);
+            cardEffect.DealDamage(caster, target, baseDamage, damageType);
             Debug.Log($"{cardName} used: {Damage} damage to {target.Name}");
         }
 

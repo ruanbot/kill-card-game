@@ -14,7 +14,7 @@ public class FrenzyData : Card
         var playerDeck = FindFirstObjectByType<PlayerDeck>();
 
         // Deal Blunt damage to caster
-        cardEffect.DealDamage(caster, 3, DamageType.Blunt);
+        cardEffect.DealDamage(caster, caster, 3, DamageType.Blunt);
 
         // Draw 2 cards
         cardEffect.DrawCards(2, playerDeck);

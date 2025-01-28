@@ -22,3 +22,4 @@ MonoBehaviour:
   targetType: 1
   BuffedDamageType: 0
   BuffPercentage: 100
+  BuffUses: 3

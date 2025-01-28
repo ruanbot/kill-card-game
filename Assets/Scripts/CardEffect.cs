@@ -2,18 +2,35 @@ using UnityEngine;
 
 public class CardEffect : MonoBehaviour
 {
-    public void DealDamage(BattleEntities target, int damage, DamageType damageType)
+    public void DealDamage(BattleEntities attacker, BattleEntities target, int baseDamage, DamageType damageType)
     {
-        float multiplier = target.GetBuffedDamageMultiplier(damageType); // Check if this returns the correct value
-        int initialDamage = Mathf.FloorToInt(damage * multiplier);
+        // Keep base damage consistent (don't let buffs alter it)
+        int originalBaseDamage = baseDamage;
 
-        // Call TakeDamage and let it calculate the reduced damage after resistances
-        int actualDamage = target.TakeDamage(initialDamage, damageType);
+        // **Apply Buff Multiplier First (before resistance)**
+        float multiplier = attacker.GetBuffedDamageMultiplier(damageType);
+        int boostedDamage = Mathf.FloorToInt(originalBaseDamage * multiplier);
 
-        // target.TakeDamage(initialDamage, damageType);
+        // **Apply Resistance After Buff Multiplier**
+        float resistance = target.Resistances.GetResistance(damageType);
+        int finalDamage = Mathf.CeilToInt(boostedDamage * (1 - resistance));
+
+        // **Apply Final Damage**
+        int actualDamage = target.TakeDamage(finalDamage, damageType);
+
         target.BattleVisuals?.ShowPopup(actualDamage, true);
-        Debug.Log($"Dealt {actualDamage} {damageType} damage to {target.Name} (Multiplier: {multiplier})");
+        Debug.Log($"[{attacker.Name} -> {target.Name}] Base Damage: {originalBaseDamage}, Buff Multiplier: {multiplier}, Boosted Damage: {boostedDamage}, Resistance Applied: {resistance * 100}%, Final Damage: {actualDamage}");
+
+        attacker.ConsumeBuff(damageType);
     }
+
+
+
+
+
+
+
+
 
 
     public void Heal(BattleEntities target, int amount)

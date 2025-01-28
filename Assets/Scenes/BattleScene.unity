@@ -746,7 +746,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -806.11743, y: -286}
+  m_AnchoredPosition: {x: -806.1175, y: -286}
   m_SizeDelta: {x: -1431.955, y: -378.075}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &449546722
@@ -2470,8 +2470,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck:
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
-  - {fileID: 11400000, guid: 277a4d170e11424479ca1d2eb69055c9, type: 2}
-  - {fileID: 11400000, guid: 277a4d170e11424479ca1d2eb69055c9, type: 2}
+  - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
+  - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
   - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
   - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
   - {fileID: 11400000, guid: 07097ab24d280e544a9ce20d9989f30d, type: 2}
@@ -2481,6 +2481,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
   - {fileID: 11400000, guid: 39981c478b8c995449c20fa2e768d9ca, type: 2}
+  - {fileID: 11400000, guid: b38ec8c1bf42bb446aff05d3ff43aed2, type: 2}
   discardPile: []
 --- !u!4 &1846740915
 Transform:

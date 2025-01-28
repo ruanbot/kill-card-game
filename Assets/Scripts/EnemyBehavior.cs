@@ -57,6 +57,11 @@ public class EnemyBehavior : MonoBehaviour
 
     void Update()
     {
+        // ensure enemies dont attack before hand is initialized
+        if (!CardManager.Instance.IsHandInitialized())
+        {
+            return;
+        }
         if (target == null || isResting || attacks.Length == 0) return;
 
         // Countdown the attack timer

@@ -21,15 +21,29 @@ public class BattleSystem : MonoBehaviour
     private Queue<System.Action> attackQueue = new Queue<System.Action>();
     private bool isProcessing = false;
 
-    public void EnqueueAttack(System.Action attack)
-    { 
-        attackQueue.Enqueue(attack);
+    private bool canEnemiesAttack = false;
 
+    public void StartEnemyAttacks()
+    {
+        canEnemiesAttack = true;
+        Debug.Log("Hand initialized! Enemies can now attack.");
+    }
+
+    public void EnqueueAttack(System.Action attack)
+    {
+        if (!canEnemiesAttack)
+        {
+            Debug.Log("Enemies cannot attack yet! Waiting for hand initialization.");
+            return;
+        }
+
+        attackQueue.Enqueue(attack);
         if (!isProcessing)
         {
             StartCoroutine(ProcessQueue());
         }
     }
+
 
     private IEnumerator ProcessQueue()
     {
@@ -208,9 +222,7 @@ public class BattleEntities
     public EntityType EntityType;
     public DamageResistances Resistances;
 
-    public List<Buff> activeBuffs = new List<Buff>();
-
-    public IEnumerable<Buff> ActiveBuffs => activeBuffs;
+    private BuffManager buffManager = new BuffManager();
 
     // Resistances to different damage types (0-100%)
     public Dictionary<DamageType, float> DamageResistances = new Dictionary<DamageType, float>();
@@ -243,33 +255,28 @@ public class BattleEntities
 
     public int TakeDamage(int damage, DamageType damageType)
     {
-        // Check if the entity is immune to this type of damage
-        if (Resistances.IsImmune(damageType))
-        {
-            Debug.Log($"{Name} is immune to {damageType} damage. No damage taken.");
-            return 0; // Negate damage if immune
-        }
+        Debug.Log($"[TakeDamage] Receiving Damage: {damage}");
 
-        float resistance = Resistances.GetResistance(damageType);
-        int reducedDamage = Mathf.FloorToInt(damage * (1 - resistance));
+        CurrentHealth -= damage;
+        CurrentHealth = Mathf.Max(CurrentHealth, 0); // Prevent negative HP
 
-        CurrentHealth -= reducedDamage;
-        CurrentHealth = Mathf.Max(CurrentHealth, 0); // Clamp health to 0
-
-        Debug.Log($"{Name} took {reducedDamage} {damageType} damage (Resistance: {resistance * 100}%)");
-
+        Debug.Log($"[{Name}] Took {damage} {damageType} damage. Remaining HP: {CurrentHealth}");
 
         if (CurrentHealth == 0)
         {
             HandleDeath();
         }
 
-        // Update Visuals
         BattleVisuals?.SyncWithEntity(this);
         BattleVisuals?.PlayHitAnimation();
 
-        return reducedDamage;
+        return damage;
     }
+
+
+
+
+
 
     private void HandleDeath()
     {
@@ -279,55 +286,29 @@ public class BattleEntities
 
     public void ApplyBuff(Buff buff)
     {
-        activeBuffs.Add(buff);
-        // Debug.Log($"{Name} received a buff: {buff.DamageType} damage increased by {buff.Percentage}%");
-        // Debug.Log($"{Name}'s active buffs count: {activeBuffs.Count}");
+        // Ensure that only the intended entity type receives the buff
+        if (EntityType != buff.SourceType)
+        {
+            return;
+        }
+        buffManager.AddBuff(buff);
     }
-
 
     public float GetBuffedDamageMultiplier(DamageType damageType)
     {
-        float multiplier = 1.0f;
-
-        for (int i = activeBuffs.Count - 1; i >= 0; i--)
-        {
-            var buff = activeBuffs[i];
-            if (buff.DamageType == damageType)
-            {
-                multiplier += buff.Percentage / 100f;
-                buff.RemainingUses--; // Decrement remaining uses
-                // Debug.Log($"{Name} used a {buff.DamageType} buff. Remaining uses: {buff.RemainingUses}");
-                if (buff.RemainingUses <= 0)
-                {
-                    Debug.Log($"{Name}'s {buff.DamageType} buff has expired.");
-                    activeBuffs.RemoveAt(i);
-                }
-                else
-                {
-                    activeBuffs[i] = buff; // Update the buff with decremented RemainingUses
-                }
-            }
-        }
-
-        // Debug.Log($"Final multiplier for {damageType}: {multiplier}");
-        return multiplier;
+        return buffManager.GetBuffedDamageMultiplier(damageType, EntityType);
     }
 
-
+    public void ConsumeBuff(DamageType damageType)
+    {
+        buffManager.ConsumeBuff(damageType, EntityType);
+    }
 
 
     public void ClearBuffs()
     {
-        activeBuffs.Clear();
-        Debug.Log($"{Name}'s buffs have been cleared.");
+        buffManager.ClearAllBuffs();
     }
-}
-
-public struct Buff
-{
-    public DamageType DamageType;
-    public float Percentage;
-    public int RemainingUses;
 }
 
 

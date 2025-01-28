@@ -26,6 +26,7 @@ public class CardManager : MonoBehaviour
     private bool highlightLock = false;
     public Card currentlyHoveredCard;
 
+
     //Disket
     private List<DisplayCard> displayCardList;
 
@@ -302,14 +303,14 @@ public class CardManager : MonoBehaviour
             return; // Skip highlighting if locked
         }
 
-        Debug.Log($"HighlightTargets called for {card.cardName} with TargetType: {card.targetType}");
+        // Debug.Log($"HighlightTargets called for {card.cardName} with TargetType: {card.targetType}");
 
         switch (card.targetType)
         {
             case TargetType.Self:
                 var caster = battleSystem.GetCurrentPlayer();
                 caster.BattleVisuals?.SetHighlight(true);
-                Debug.Log($"Auto-highlighting self: {caster.Name}");
+                // Debug.Log($"Auto-highlighting self: {caster.Name}");
                 break;
 
             case TargetType.Friendly:
@@ -317,7 +318,7 @@ public class CardManager : MonoBehaviour
                 {
                     var friendlyTarget = battleSystem.playerBattlers[0];
                     friendlyTarget.BattleVisuals?.SetHighlight(true);
-                    Debug.Log($"Auto-highlighting friendly target: {friendlyTarget.Name}");
+                    // Debug.Log($"Auto-highlighting friendly target: {friendlyTarget.Name}");
                 }
                 break;
 
@@ -326,7 +327,7 @@ public class CardManager : MonoBehaviour
                 {
                     var enemyTarget = battleSystem.enemyBattlers[0];
                     enemyTarget.BattleVisuals?.SetHighlight(true);
-                    Debug.Log($"Auto-highlighting enemy target: {enemyTarget.Name}");
+                    // Debug.Log($"Auto-highlighting enemy target: {enemyTarget.Name}");
                 }
                 break;
 
@@ -334,7 +335,7 @@ public class CardManager : MonoBehaviour
                 foreach (var entity in battleSystem.allBattlers)
                 {
                     entity.BattleVisuals?.SetHighlight(true);
-                    Debug.Log($"Highlighting all entities: {entity.Name}");
+                   // Debug.Log($"Highlighting all entities: {entity.Name}");
                 }
                 break;
 
@@ -342,7 +343,7 @@ public class CardManager : MonoBehaviour
                 foreach (var friendly in battleSystem.playerBattlers)
                 {
                     friendly.BattleVisuals?.SetHighlight(true);
-                    Debug.Log($"Highlighting all friendly entities: {friendly.Name}");
+                    // Debug.Log($"Highlighting all friendly entities: {friendly.Name}");
                 }
                 break;
 
@@ -350,12 +351,12 @@ public class CardManager : MonoBehaviour
                 foreach (var enemy in battleSystem.enemyBattlers)
                 {
                     enemy.BattleVisuals?.SetHighlight(true);
-                    Debug.Log($"Highlighting all enemy entities: {enemy.Name}");
+                    // Debug.Log($"Highlighting all enemy entities: {enemy.Name}");
                 }
                 break;
 
             default:
-                Debug.LogWarning($"Unhandled TargetType: {card.targetType}");
+                // Debug.LogWarning($"Unhandled TargetType: {card.targetType}");
                 break;
         }
     }
@@ -465,6 +466,11 @@ public class CardManager : MonoBehaviour
         }
     }
 
+    public bool IsHandInitialized()
+    {
+        return isHandInitialized;
+    }
+
     private void InitializeCardScripts(GameObject cardVisual)
     {
         // Initialize CardHover script
@@ -497,6 +503,9 @@ public class CardManager : MonoBehaviour
         {
             InitializeCardScripts(cardTransform.gameObject);
         }
+
+        isHandInitialized = true;  //  Mark hand as initialized
+        FindFirstObjectByType<BattleSystem>()?.StartEnemyAttacks();  //  Notify BattleSystem
     }
 
 

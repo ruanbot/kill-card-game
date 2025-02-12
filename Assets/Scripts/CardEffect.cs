@@ -4,6 +4,9 @@ public class CardEffect : MonoBehaviour
 {
     public void DealDamage(BattleEntities attacker, BattleEntities target, int baseDamage, DamageType damageType)
     {
+        // **Apply Debuff First**
+        attacker.ApplyDebuffEffects();
+
         // Keep base damage consistent (don't let buffs alter it)
         int originalBaseDamage = baseDamage;
 
@@ -23,15 +26,6 @@ public class CardEffect : MonoBehaviour
 
         attacker.ConsumeBuff(damageType);
     }
-
-
-
-
-
-
-
-
-
 
     public void Heal(BattleEntities target, int amount)
     {

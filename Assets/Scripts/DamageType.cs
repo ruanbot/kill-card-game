@@ -7,5 +7,6 @@ public enum DamageType
     Frost,
     Lightning,
     Dark,
-    Holy
+    Holy,
+    Bleed
 }

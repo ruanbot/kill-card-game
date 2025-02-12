@@ -273,10 +273,15 @@ public class BattleEntities
         return damage;
     }
 
+    public void ApplyDebuff(Debuff debuff)
+    {
+        buffManager.AddDebuff(debuff);
+    }
 
-
-
-
+    public void ApplyDebuffEffects()
+    {
+        buffManager.ApplyDebuffEffects(this);
+    }
 
     private void HandleDeath()
     {

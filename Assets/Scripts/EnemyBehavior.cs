@@ -72,7 +72,7 @@ public class EnemyBehavior : MonoBehaviour
         {
             timerText.text = attackTimer > 0
                 ? Mathf.CeilToInt(attackTimer).ToString()
-                : "Attacking..."; // Indicate attack phase
+                : $"{attacks[currentAttackIndex].attackName}"; // Indicate attack phase
             timerText.gameObject.SetActive(true);
         }
 
@@ -124,7 +124,7 @@ public class EnemyBehavior : MonoBehaviour
 
         if (timerText != null)
         {
-            timerText.text = "Resting...";
+            timerText.text = "<color=#ADD8E6>Resting...</color>";
         }
 
         yield return new WaitForSeconds(restTime);

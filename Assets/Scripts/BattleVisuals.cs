@@ -1,22 +1,29 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections;
-using System.Reflection;
 
 public class BattleVisuals : MonoBehaviour
 {
     public event Action<BattleVisuals> TargetSelected; // Public event
     public event Action<BattleVisuals> HoveringOnTarget; //Public Event
-
     public event Action<BattleVisuals> HoveringOnTargetEnded; //Public Event
 
-    [SerializeField] public Slider healthBar;
-    [SerializeField] private TextMeshProUGUI hpText;
-    [SerializeField] private TextMeshProUGUI levelText;
-    [SerializeField] private GameObject floatingText;
-    [SerializeField] public Image portraitImage;
+    public Slider healthBar;
+
+    [SerializeField]
+    private TextMeshProUGUI hpText;
+
+    [SerializeField]
+    private TextMeshProUGUI levelText;
+
+    [SerializeField]
+    private GameObject floatingText;
+
+    [SerializeField]
+    public Image portraitImage;
 
     public EnemyInfo enemyData;
     public PartyMemberInfo memberData;
@@ -26,6 +33,10 @@ public class BattleVisuals : MonoBehaviour
     private int level;
     private Animator anim;
 
+    [Header("Buff/Debuff UI")]
+    public Transform buffContainer;
+    public GameObject buffIconPrefab;
+    public TextMeshProUGUI consumeChargeText;
 
     // A reference to the highlight or outline component
     [SerializeField] private GameObject highlightObject;
@@ -38,23 +49,6 @@ public class BattleVisuals : MonoBehaviour
     private void Start()
     {
         anim = GetComponent<Animator>();
-
-    }
-
-    private void SetFromEnemyData()
-    {
-        levelText.text = LEVEL_ABB + enemyData.Level;
-        portraitImage.sprite = enemyData.entityPortrait;
-
-        SetHealthValues(enemyData.CurrentHealth, enemyData.MaxHealth);
-    }
-
-    private void SetFromPartyMemberData()
-    {
-        levelText.text = LEVEL_ABB + memberData.StartingLevel;
-        portraitImage.sprite = memberData.entityPortrait;
-
-        SetHealthValues(memberData.BaseHealth, memberData.BaseHealth);
     }
 
     public void SetStartingValues(int startHealth, int startMaxHealth, int startLevel)
@@ -290,7 +284,78 @@ public class BattleVisuals : MonoBehaviour
         TooltipManager.Instance.UnregisterHoverEvents(this);
     }
 
+    private Dictionary<string, GameObject> activeBuffIcons = new Dictionary<string, GameObject>();
+
+    public void UpdateBuffIcons(List<CombatEffect> effects)
+    {
+        if (buffContainer == null) return;
+
+        // Debug.Log($"Updating buff icons. Effects count: {effects?.Count ?? 0}");
+        
+        // Clear existing icons safely
+        for (int i = buffContainer.childCount - 1; i >= 0; i--)
+        {
+            var child = buffContainer.GetChild(i);
+            if (child != null && child.gameObject != buffIconPrefab.gameObject)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Create new icons
+        if (effects != null)
+        {
+            foreach (CombatEffect effect in effects)
+            {
+                AddBuffIcon(effect.BuffIconSprite, effect is Buff, effect.ConsumeCharge);
+            }
+        }
+    }
+
+    public void AddBuffIcon(Sprite iconSprite, bool isBuff, int consumeCharge)
+    {
+        if (buffContainer == null || buffIconPrefab == null)
+        {
+            Debug.LogError($"Missing references - BuffContainer: {buffContainer != null}, BuffIconPrefab: {buffIconPrefab != null}");
+            return;
+        }
+
+        if (iconSprite == null)
+        {
+            Debug.LogError("BuffIconSprite is null!");
+            return;
+        }
+
+        try
+        {
+            GameObject buffIconObj = Instantiate(buffIconPrefab, buffContainer);
+            buffIconObj.SetActive(true);
+
+            Image iconImage = buffIconObj.GetComponent<Image>();
+            if (iconImage != null)
+            {
+                iconImage.sprite = iconSprite;
+                iconImage.enabled = true;
+            }
+
+            TextMeshProUGUI chargeText = buffIconObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (chargeText != null)
+            {
+                chargeText.text = consumeCharge.ToString();
+                chargeText.enabled = true;
+            }
+
+            // Debug.Log($"Successfully created buff icon. Position: {buffIconObj.transform.position}, Active: {buffIconObj.activeSelf}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error creating buff icon: {e.Message}");
+        }
+    }
+
+
 
 
 
 }
+

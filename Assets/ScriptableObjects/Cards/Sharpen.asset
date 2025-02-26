@@ -13,13 +13,11 @@ MonoBehaviour:
   m_Name: Sharpen
   m_EditorClassIdentifier: 
   cardName: Sharpen
-  cardDescription: Increase Slash attacks by 50%
+  cardDescription: Increase Slash Power by 50%
   artwork: {fileID: -827120969, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
-  manaCost: 1
-  cardCost: 1
-  cardRarity: 0
+  manaCost: 2
+  cardCost: 2
+  cardRarity: 1
   heroClass: 0
   targetType: 1
-  BuffedDamageType: 0
-  BuffPercentage: 100
-  BuffUses: 3
+  specialEffect: {fileID: 11400000, guid: b4e4a9544a833024a9b60916e5abd731, type: 2}

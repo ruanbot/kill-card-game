@@ -1,26 +1,52 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Buff
+public class Buff : CombatEffect
 {
     public DamageType DamageType { get; private set; }
     public float Percentage { get; private set; }
-    public int RemainingUses { get; private set; }
     public EntityType SourceType { get; private set; }
+    public EffectTriggerType TriggerType { get; set; }
 
-    public Buff(DamageType type, float percentage, int uses, EntityType source)
+    public Buff(
+        string effectName,
+        DamageType damageType,
+        float percentage,
+        int charges,
+        EntityType sourceType,
+        Sprite iconSprite,
+        bool stackable)
+        : base(effectName, charges, iconSprite, stackable)
     {
-        DamageType = type;
+        DamageType = damageType;
         Percentage = percentage;
-        RemainingUses = uses;
-        SourceType = source;
+        SourceType = sourceType;
+    }
+
+    public override bool TriggerEffect(BattleEntities target, EffectTriggerType triggerType)
+    {
+        if (TriggerType.HasFlag(triggerType))
+        {
+            Debug.Log($"Consuming {EffectName} charge on {triggerType}. Charges before: {ConsumeCharge}");
+            ReduceCharge();
+            Debug.Log($"Charges remaining: {ConsumeCharge}");
+            return !IsExpired();
+        }
+        return true;
+    }
+
+    public override void Apply(BattleEntities target)
+    {
+        Debug.Log($"Applied Buff: {EffectName} - {Percentage}% increased {DamageType} damage.");
     }
 
     public void Consume()
     {
-        RemainingUses--;
-        if (RemainingUses <= 0)
-        {
-            Debug.Log($"Buff {DamageType} has expired.");
-        }
+        ReduceCharge();
+    }
+
+    public void AddPercentage(float additionalPercentage)
+    {
+        Percentage += additionalPercentage;
     }
 }

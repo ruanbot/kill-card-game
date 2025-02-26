@@ -1,15 +1,22 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Special Effect/BleedEffect")]
-public class BleedEffect : EnemyAttackSpecialEffects
+public class BleedEffect : CombatSpecialEffects
 {
     public int damagePerTrigger = 1;
-    public int maxTriggers = 2;
 
-    public override void ApplyEffect(BattleEntities target)
+    public override CombatEffect CreateEffect()
     {
-        var bleed = new Debuff("Bleed", damagePerTrigger, maxTriggers);
-        target.ApplyDebuff(bleed);
-        Debug.Log($"[{target.Name}] is now Bleeding! Takes {damagePerTrigger} damage for {maxTriggers} attacks.");
+        return new Debuff(
+            "Bleed",
+            DebuffType.DamageOverTime,
+            consumeCharge,
+            BuffIconSprite,
+            stackable,
+            damagePerTrigger: damagePerTrigger
+        )
+        {
+            TriggerType = EffectTriggerType.OnDamageReceived
+        };
     }
 }

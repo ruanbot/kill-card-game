@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e6554e4edacf6a4fa6ebfe8c5cc6ebe, type: 3}
-  m_Name: Rend
+  m_Script: {fileID: 11500000, guid: d0095de8a54c76e4486c64d65ed3359b, type: 3}
+  m_Name: Sharpen Effect
   m_EditorClassIdentifier: 
-  attackName: Rend
-  damage: 1
-  cooldown: 10
-  damageType: 0
-  animationTrigger: IsAttack
-  specialEffect: {fileID: 11400000, guid: c07a788b0d5d17245893e255dd8ffe94, type: 2}
+  buffedDamageType: 0
+  buffPercentage: 50
+  buffUses: 2

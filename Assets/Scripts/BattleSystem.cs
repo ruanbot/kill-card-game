@@ -200,7 +200,7 @@ private void CreateEnemyEntities()
     {
         foreach (var entity in allBattlers)
         {
-            entity.ClearBuffs();
+            entity.ClearAllEffects();
         }
 
         Debug.Log("Battle ended, all buffs cleared.");
@@ -273,46 +273,39 @@ public class BattleEntities
         return damage;
     }
 
-    public void ApplyDebuff(Debuff debuff)
-    {
-        buffManager.AddDebuff(debuff);
-    }
-
-    public void ApplyDebuffEffects()
-    {
-        buffManager.ApplyDebuffEffects(this);
-    }
-
     private void HandleDeath()
     {
         Debug.Log($"{Name} has died!");
         BattleVisuals?.PlayDeathAnimation();
     }
 
-    public void ApplyBuff(Buff buff)
+    public void TriggerEffects(EffectTriggerType triggerType)
     {
-        // Ensure that only the intended entity type receives the buff
-        if (EntityType != buff.SourceType)
-        {
-            return;
-        }
-        buffManager.AddBuff(buff);
+        buffManager.TriggerEffects(this, triggerType);
+        BattleVisuals?.UpdateBuffIcons(buffManager.GetActiveEffects());
+    }
+
+    public void ApplyEffect(CombatEffect effect)
+    {
+        buffManager.AddEffect(effect, this);
+        BattleVisuals?.UpdateBuffIcons(buffManager.GetActiveEffects());
     }
 
     public float GetBuffedDamageMultiplier(DamageType damageType)
     {
+        // Debug.Log($"Getting buff multiplier for {Name} with damage type {damageType}");
         return buffManager.GetBuffedDamageMultiplier(damageType, EntityType);
     }
 
-    public void ConsumeBuff(DamageType damageType)
+    public float GetDebuffMultiplier(DamageType damageType)
     {
-        buffManager.ConsumeBuff(damageType, EntityType);
+        return buffManager.GetDebuffMultiplier(damageType, EntityType);
     }
 
-
-    public void ClearBuffs()
+    public void ClearAllEffects()
     {
-        buffManager.ClearAllBuffs();
+        buffManager.ClearAllEffects();
+        BattleVisuals?.UpdateBuffIcons(buffManager.GetActiveEffects());
     }
 }
 

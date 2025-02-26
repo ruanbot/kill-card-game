@@ -9,7 +9,7 @@ public class EnemyAttack : ScriptableObject
     public float cooldown;
     public DamageType damageType;
     public string animationTrigger; // Add this for attack-specific animations
-    public EnemyAttackSpecialEffects specialEffect;
+    public CombatSpecialEffects specialEffect;
 
     public void Execute(BattleEntities attacker, BattleEntities target)
     {
@@ -27,7 +27,15 @@ public class EnemyAttack : ScriptableObject
         Debug.Log($"{attackName}: Dealt {actualDamage} {damageType} damage to {target.Name}");
 
         // Apply special effects if any
-        specialEffect?.ApplyEffect(target);
+        if (specialEffect != null)
+        {
+            var effect = specialEffect.CreateEffect();
+            if (effect != null)
+            {
+                target.ApplyEffect(effect);
+                Debug.Log($"Applied {effect.EffectName} from {specialEffect.effectName}.");
+            }
+        }
 
     }
 }

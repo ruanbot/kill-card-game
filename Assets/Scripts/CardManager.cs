@@ -92,40 +92,27 @@ public class CardManager : MonoBehaviour
 
     public void PlayCard(Card card, BattleEntities caster, BattleEntities target)
     {
-
-        bool found = false;
-        foreach (var c in hand)
-        {
-            if (c == card) // Use reference equality explicitly
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
-        {
-            return;
-        }
+        if (!hand.Contains(card)) return;
 
         if (energyManager.HasEnoughEnergy(card.manaCost))
         {
-            Debug.Log($"Playing card {card.cardName}. Caster: {caster.Name}, Target: {target.Name}, EntityType: {target.EntityType}");
-
+            // Remove the card from hand to maintain correct hand state
             hand.Remove(card);
 
-            // Execute card's effect
+            // Execute card effects
             card.Use(caster, target);
 
-            // Update energy manager
-            energyManager.SpendEnergy(card.manaCost);
+            // Trigger 'OnCardUse' effects
+            caster.TriggerEffects(EffectTriggerType.OnCardUse);
+            target.TriggerEffects(EffectTriggerType.OnCardUse);
 
-            // Notify PlayerDeck to move card to discard pile
+            // Update Energy and discard card
+            energyManager.SpendEnergy(card.manaCost);
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
 
+            // Clear Highlights & Destroy visual
             ClearHighlights();
-
-            DestroyCardVisual(card); // Remove the card visual
+            DestroyCardVisual(card);
         }
         else
         {

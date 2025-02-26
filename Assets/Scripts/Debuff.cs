@@ -1,30 +1,74 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Debuff
+public enum DebuffType
 {
-    public string Name { get; private set; }
+    None,
+    DamageOverTime,  // Damage over time
+    Weakness,        // Reduces damage dealt
+    Vulnerable,      // Takes increased damage
+    Exhausted,       // Reduces energy
+    // Add more debuff types as needed
+}
+
+public class Debuff : CombatEffect
+{
+    public DebuffType Type { get; private set; }
     public int DamagePerTrigger { get; private set; }
-    public int RemainingTriggers { get; private set; }
+    public float EffectValue { get; private set; }  // Generic value (damage reduction %, energy reduction, etc.)
+    public EffectTriggerType TriggerType { get; set; }
 
-    public Debuff(string name, int damage, int triggers)
+    public Debuff(
+        string name, 
+        DebuffType type,
+        int charges, 
+        Sprite iconSprite, 
+        bool stackable,
+        float effectValue = 0,
+        int damagePerTrigger = 0)
+        : base(name, charges, iconSprite, stackable)
     {
-        Name = name;
-        DamagePerTrigger = damage;
-        RemainingTriggers = triggers;
+        Type = type;
+        EffectValue = effectValue;
+        DamagePerTrigger = damagePerTrigger;
     }
 
-    public void Stack(int extraDamage, int extraTriggers)
+    public override void Apply(BattleEntities target)
     {
-        DamagePerTrigger += extraDamage; // Increase Bleed damage if stacking
-        RemainingTriggers += extraTriggers; // Increase duration
+        target.ApplyEffect(this);
     }
 
-    public bool Consume(BattleEntities target)
+    public override bool TriggerEffect(BattleEntities target, EffectTriggerType triggerType)
     {
-        target.TakeDamage(DamagePerTrigger, DamageType.Bleed);
-        Debug.Log($"[{target.Name}] suffered {DamagePerTrigger} damage from {Name}. Remaining Triggers: {RemainingTriggers - 1}");
+        if (TriggerType.HasFlag(triggerType))
+        {
+            switch (Type)
+            {
+                case DebuffType.DamageOverTime:
+                    target.TakeDamage(DamagePerTrigger, DamageType.Bleed);
+                    break;
+                case DebuffType.Exhausted:
+                    var energyManager = GameObject.FindFirstObjectByType<EnergyManager>();
+                    if (energyManager != null)
+                    {
+                        energyManager.SpendEnergy((int)EffectValue);
+                        Debug.Log($"Exhausted debuff reduced energy by {EffectValue}");
+                    }
+                    break;
+            }
+            ReduceCharge();
+            return !IsExpired();
+        }
+        return true;
+    }
 
-        RemainingTriggers--;
-        return RemainingTriggers > 0;
+    public override float GetDamageMultiplier(DamageType damageType, EntityType entityType)
+    {
+        return Type switch
+        {
+            DebuffType.Weakness => 1.0f - (EffectValue / 100f),
+            DebuffType.Vulnerable => 1.0f + (EffectValue / 100f),
+            _ => 1.0f
+        };
     }
 }

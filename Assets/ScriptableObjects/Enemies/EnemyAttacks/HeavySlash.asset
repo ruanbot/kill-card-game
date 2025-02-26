@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackName: Heavy Slash
   damage: 2
-  cooldown: 3
+  cooldown: 5
   damageType: 0
   animationTrigger: IsAttack
   specialEffect: {fileID: 0}

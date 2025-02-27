@@ -15,6 +15,7 @@ public abstract class CombatEffect
     public int ConsumeCharge { get; set; }
     public Sprite BuffIconSprite { get; protected set; }
     public bool Stackable { get; set; }
+    public EffectTriggerType TriggerType { get; set; }
 
     public CombatEffect(string effectName, int charges, Sprite iconSprite, bool stackable)
     {

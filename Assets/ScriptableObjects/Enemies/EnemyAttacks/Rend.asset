@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackName: Rend
   damage: 1
-  cooldown: 10
+  cooldown: 5
   damageType: 0
   animationTrigger: IsAttack
   specialEffect: {fileID: 11400000, guid: c07a788b0d5d17245893e255dd8ffe94, type: 2}

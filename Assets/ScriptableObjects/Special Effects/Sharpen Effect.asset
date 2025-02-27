@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Sharpen Effect
   m_EditorClassIdentifier: 
   BuffIconSprite: {fileID: -613494815, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
-  consumeCharge: 3
+  consumeCharge: 2
   stackable: 1
-  triggerType: 0
+  triggerType: 1
   effectName: Sharpen
   buffedDamageType: 0
   buffPercentage: 0.5

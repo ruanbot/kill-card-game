@@ -28,22 +28,21 @@ public class CardEffect : MonoBehaviour
         // More detailed logging
         Debug.Log($"Damage Calculation: Base({originalBaseDamage}) * Buff({buffMultiplier}) * Debuff({debuffMultiplier}) * (1 - Resistance({resistance})) = {finalDamage}");
 
-        // Apply Final Damage
-        int actualDamage = target.TakeDamage(finalDamage, damageType);
-
+        // Apply Final Damage with source
+        int actualDamage = target.TakeDamage(finalDamage, damageType, attacker);
         target.BattleVisuals?.ShowPopup(actualDamage, true);
-        // Debug.Log($"[{attacker.Name} -> {target.Name}] Base: {originalBaseDamage}, " +
-        //          $"Buff Multi: {buffMultiplier}, Debuff Multi: {debuffMultiplier}, " +
-        //         $"Resistance: {resistance * 100}%, Final: {actualDamage}");
 
-        // Change this to specifically trigger player attacks
-        if (attacker.IsPlayer)
+        // Only trigger attack effects if not self-damage
+        if (attacker != target)
         {
-            attacker.TriggerEffects(EffectTriggerType.OnPlayerAttack);
-        }
-        else
-        {
-            attacker.TriggerEffects(EffectTriggerType.OnEnemyAttack);
+            if (attacker.IsPlayer)
+            {
+                attacker.TriggerEffects(EffectTriggerType.OnPlayerAttack);
+            }
+            else
+            {
+                attacker.TriggerEffects(EffectTriggerType.OnEnemyAttack);
+            }
         }
     }
 

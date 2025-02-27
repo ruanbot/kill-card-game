@@ -15,8 +15,6 @@ public abstract class CombatSpecialEffects : ScriptableObject
 
     public string effectName;
 
-    public virtual CombatEffect CreateEffect()
-    {
-        return null;
-    }
+    public abstract CombatEffect CreateEffect();
+    public virtual bool TriggerEffect(BattleEntities target, EffectTriggerType triggerType) => false;
 }

@@ -266,17 +266,18 @@ public class BattleEntities
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
 
-    public int TakeDamage(int damage, DamageType damageType)
+    public int TakeDamage(int damage, DamageType damageType, BattleEntities source = null)
     {
-        Debug.Log($"[TakeDamage] Starting damage process for {damageType}");
+        Debug.Log($"[TakeDamage] Starting damage process for {damageType} from {source?.Name ?? "self"}");
 
         // Apply base damage first
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Max(CurrentHealth, 0);
         Debug.Log($"[{Name}] Took {damage} {damageType} damage. Remaining HP: {CurrentHealth}");
 
-        // Then handle any effects that should trigger from taking damage
-        if (damageType != DamageType.Bleed)
+        // Don't trigger effects for bleed or if source is self
+        bool isSelfDamage = source == this;
+        if (damageType != DamageType.Bleed && !isSelfDamage)
         {
             buffManager.ConsumeBuff(damageType, EntityType);
             TriggerEffects(EffectTriggerType.OnDamageReceived);

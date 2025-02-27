@@ -44,19 +44,31 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-
     private IEnumerator ProcessQueue()
     {
         isProcessing = true;
 
-        while (attackQueue.Count > 0)
+        try 
         {
-            var attack = attackQueue.Dequeue();
-            attack.Invoke();
-            yield return new WaitForSeconds(1f); // Delay between attacks
+            while (attackQueue.Count > 0)
+            {
+                var attack = attackQueue.Dequeue();
+                attack.Invoke();
+                yield return new WaitForSeconds(1f);
+            }
         }
+        finally 
+        {
+            isProcessing = false;
+            attackQueue.Clear(); // Clear any remaining attacks if coroutine is stopped
+        }
+    }
 
-        isProcessing = false;
+    // Add this to clean up when the object is destroyed
+    private void OnDestroy()
+    {
+        attackQueue.Clear();
+        StopAllCoroutines();
     }
 
     // Start is called before the first frame update
@@ -198,11 +210,12 @@ private void CreateEnemyEntities()
 
     public void EndBattle()
     {
+        StopAllCoroutines();
         foreach (var entity in allBattlers)
         {
             entity.ClearAllEffects();
         }
-
+        attackQueue.Clear();
         Debug.Log("Battle ended, all buffs cleared.");
     }
 
@@ -255,12 +268,19 @@ public class BattleEntities
 
     public int TakeDamage(int damage, DamageType damageType)
     {
-        Debug.Log($"[TakeDamage] Receiving Damage: {damage}");
+        Debug.Log($"[TakeDamage] Starting damage process for {damageType}");
 
+        // Apply base damage first
         CurrentHealth -= damage;
-        CurrentHealth = Mathf.Max(CurrentHealth, 0); // Prevent negative HP
-
+        CurrentHealth = Mathf.Max(CurrentHealth, 0);
         Debug.Log($"[{Name}] Took {damage} {damageType} damage. Remaining HP: {CurrentHealth}");
+
+        // Then handle any effects that should trigger from taking damage
+        if (damageType != DamageType.Bleed)
+        {
+            buffManager.ConsumeBuff(damageType, EntityType);
+            TriggerEffects(EffectTriggerType.OnDamageReceived);
+        }
 
         if (CurrentHealth == 0)
         {
@@ -308,7 +328,3 @@ public class BattleEntities
         BattleVisuals?.UpdateBuffIcons(buffManager.GetActiveEffects());
     }
 }
-
-
-
-

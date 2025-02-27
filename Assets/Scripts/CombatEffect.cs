@@ -3,9 +3,10 @@ using UnityEngine.UI;
 
 public enum EffectTriggerType
 {
-    OnAttack,
-    OnDamageReceived,
-    OnCardUse,
+    OnPlayerAttack = 1,
+    OnEnemyAttack = 2,
+    OnDamageReceived = 4,
+    OnCardUse = 8,
 }
 
 public abstract class CombatEffect

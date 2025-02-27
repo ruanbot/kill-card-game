@@ -27,9 +27,9 @@ public class Buff : CombatEffect
     {
         if (TriggerType.HasFlag(triggerType))
         {
-            Debug.Log($"Consuming {EffectName} charge on {triggerType}. Charges before: {ConsumeCharge}");
+            // Debug.Log($"Consuming {EffectName} charge on {triggerType}. Charges before: {ConsumeCharge}");
             ReduceCharge();
-            Debug.Log($"Charges remaining: {ConsumeCharge}");
+            // Debug.Log($"Charges remaining: {ConsumeCharge}");
             return !IsExpired();
         }
         return true;

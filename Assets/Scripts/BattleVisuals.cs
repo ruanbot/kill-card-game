@@ -94,7 +94,7 @@ public class BattleVisuals : MonoBehaviour
         }
     }
 
-    public void ShowPopup(int amount, bool isDamage)
+    public void ShowPopup(int amount, bool isDamage, bool isDebuff = false)
     {
         // Offset the popup position slightly above the entity
         Vector3 popupPosition = transform.position + new Vector3(0, 0, -0.1f);
@@ -104,18 +104,16 @@ public class BattleVisuals : MonoBehaviour
         // Set the popup's parent to the battle entity but keep the world position
         popup.transform.SetParent(transform, worldPositionStays: true);
 
-        popup.GetComponent<Renderer>().sortingLayerName = "UI"; // Adjust Sorting Layer Name
-        popup.GetComponent<Renderer>().sortingOrder = 10; // Ensure a high sorting order
+        popup.GetComponent<Renderer>().sortingLayerName = "UI";
+        popup.GetComponent<Renderer>().sortingOrder = 10;
 
         var textComponent = popup.GetComponent<TextMeshPro>();
         if (textComponent != null)
         {
-            // Set the text and color based on whether it's damage or healing
             textComponent.text = amount.ToString();
-            textComponent.color = isDamage ? Color.yellow : Color.green; // Yellow for damage, green for heal
+            // Red for debuff damage, yellow for normal damage, green for healing
+            textComponent.color = isDebuff ? Color.red : (isDamage ? Color.yellow : Color.green);
         }
-
-
     }
 
     public void InitializeWithEnemy(EnemyInfo info)
@@ -344,8 +342,6 @@ public class BattleVisuals : MonoBehaviour
                 chargeText.text = consumeCharge.ToString();
                 chargeText.enabled = true;
             }
-
-            // Debug.Log($"Successfully created buff icon. Position: {buffIconObj.transform.position}, Active: {buffIconObj.activeSelf}");
         }
         catch (Exception e)
         {

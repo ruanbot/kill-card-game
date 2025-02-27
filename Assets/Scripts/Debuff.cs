@@ -31,6 +31,7 @@ public class Debuff : CombatEffect
         Type = type;
         EffectValue = effectValue;
         DamagePerTrigger = damagePerTrigger;
+        TriggerType = EffectTriggerType.OnDamageReceived;  // Set trigger type for bleed
     }
 
     public override void Apply(BattleEntities target)
@@ -46,6 +47,7 @@ public class Debuff : CombatEffect
             {
                 case DebuffType.DamageOverTime:
                     target.TakeDamage(DamagePerTrigger, DamageType.Bleed);
+                    target.BattleVisuals?.ShowPopup(DamagePerTrigger, true, true);
                     break;
                 case DebuffType.Exhausted:
                     var energyManager = GameObject.FindFirstObjectByType<EnergyManager>();

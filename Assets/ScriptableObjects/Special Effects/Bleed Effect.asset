@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f551b6161fea89b4281c99842dd22fff, type: 3}
   m_Name: Bleed Effect
   m_EditorClassIdentifier: 
+  BuffIconSprite: {fileID: -92679457, guid: be55291aae08d434db3da3b59db3ab4a, type: 3}
+  consumeCharge: 1
+  stackable: 1
+  triggerType: 1
+  effectName: Bleed
   damagePerTrigger: 1
-  maxTriggers: 2

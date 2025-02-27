@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Enemy Attack")]
@@ -33,9 +32,8 @@ public class EnemyAttack : ScriptableObject
             if (effect != null)
             {
                 target.ApplyEffect(effect);
-                Debug.Log($"Applied {effect.EffectName} from {specialEffect.effectName}.");
+                Debug.Log($"Applied {effect.EffectName} from {attackName}.");
             }
         }
-
     }
 }

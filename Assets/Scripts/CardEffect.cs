@@ -4,7 +4,7 @@ public class CardEffect : MonoBehaviour
 {
     public void DealDamage(BattleEntities attacker, BattleEntities target, int baseDamage, DamageType damageType)
     {
-        // Apply Debuff First
+        // Triggered at start of card use
         attacker.TriggerEffects(EffectTriggerType.OnCardUse);
 
         // Keep base damage consistent
@@ -36,7 +36,15 @@ public class CardEffect : MonoBehaviour
         //          $"Buff Multi: {buffMultiplier}, Debuff Multi: {debuffMultiplier}, " +
         //         $"Resistance: {resistance * 100}%, Final: {actualDamage}");
 
-        attacker.TriggerEffects(EffectTriggerType.OnAttack);
+        // Change this to specifically trigger player attacks
+        if (attacker.IsPlayer)
+        {
+            attacker.TriggerEffects(EffectTriggerType.OnPlayerAttack);
+        }
+        else
+        {
+            attacker.TriggerEffects(EffectTriggerType.OnEnemyAttack);
+        }
     }
 
     public void Heal(BattleEntities target, int amount)

@@ -19,7 +19,7 @@ public class SharpenEffect : CombatSpecialEffects
             stackable
         )
         {
-            TriggerType = EffectTriggerType.OnAttack
+            TriggerType = triggerType
         };
     }
 }

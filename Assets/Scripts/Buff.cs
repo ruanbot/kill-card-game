@@ -6,7 +6,6 @@ public class Buff : CombatEffect
     public DamageType DamageType { get; private set; }
     public float Percentage { get; private set; }
     public EntityType SourceType { get; private set; }
-    public EffectTriggerType TriggerType { get; set; }
 
     public Buff(
         string effectName,

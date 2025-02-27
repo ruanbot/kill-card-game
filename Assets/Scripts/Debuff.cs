@@ -16,7 +16,9 @@ public class Debuff : CombatEffect
     public DebuffType Type { get; private set; }
     public int DamagePerTrigger { get; private set; }
     public float EffectValue { get; private set; }  // Generic value (damage reduction %, energy reduction, etc.)
-    public EffectTriggerType TriggerType { get; set; }
+
+    public delegate bool TriggerHandler(Debuff debuff, BattleEntities target, EffectTriggerType triggerType);
+    public TriggerHandler OnTrigger { get; set; }
 
     public Debuff(
         string name, 
@@ -31,7 +33,6 @@ public class Debuff : CombatEffect
         Type = type;
         EffectValue = effectValue;
         DamagePerTrigger = damagePerTrigger;
-        TriggerType = EffectTriggerType.OnDamageReceived;  // Set trigger type for bleed
     }
 
     public override void Apply(BattleEntities target)
@@ -41,14 +42,15 @@ public class Debuff : CombatEffect
 
     public override bool TriggerEffect(BattleEntities target, EffectTriggerType triggerType)
     {
+        if (OnTrigger != null)
+        {
+            return OnTrigger(this, target, triggerType);
+        }
+        
         if (TriggerType.HasFlag(triggerType))
         {
             switch (Type)
             {
-                case DebuffType.DamageOverTime:
-                    target.TakeDamage(DamagePerTrigger, DamageType.Bleed);
-                    target.BattleVisuals?.ShowPopup(DamagePerTrigger, true, true);
-                    break;
                 case DebuffType.Exhausted:
                     var energyManager = GameObject.FindFirstObjectByType<EnergyManager>();
                     if (energyManager != null)

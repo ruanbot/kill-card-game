@@ -19,25 +19,31 @@ public class BuffManager
         {
             // Renew charges if not stackable
             existingEffect.ConsumeCharge = effect.ConsumeCharge;
-            Debug.Log($"{effect.EffectName} refreshed with new charges.");
+            Debug.Log($"{effect.EffectName} refreshed with new charges: {effect.ConsumeCharge}");
         }
         else if (existingEffect != null && effect.Stackable)
         {
-            // Stack both charges and percentage for buffs
+            // Stack charges for all effects
             existingEffect.ConsumeCharge += effect.ConsumeCharge;
+            
+            // Stack percentages only for buffs (like Sharpen)
             if (existingEffect is Buff existingBuff && effect is Buff newBuff)
             {
                 existingBuff.AddPercentage(newBuff.Percentage);
-                Debug.Log($"{effect.EffectName} stacked. New percentage: {existingBuff.Percentage}%, Charges: {existingBuff.ConsumeCharge}");
+                Debug.Log($"{effect.EffectName} stacked. New percentage: {existingBuff.Percentage}%, Charges: {existingEffect.ConsumeCharge}");
+            }
+            else
+            {
+                Debug.Log($"{effect.EffectName} stacked. Charges: {existingEffect.ConsumeCharge}");
             }
         }
         else
         {
             // Add new effect if it doesn't exist
             activeEffects.Add(effect);
-            effect.Apply(target);
+            // Removed effect.Apply(target) as it might cause recursive application
             target.BattleVisuals?.AddBuffIcon(effect.BuffIconSprite, effect is Buff, effect.ConsumeCharge);
-            Debug.Log($"Applied new effect: {effect.EffectName}.");
+            Debug.Log($"Applied new {effect.EffectName} with {effect.ConsumeCharge} charges.");
         }
 
         target.BattleVisuals?.UpdateBuffIcons(GetActiveEffects());
@@ -98,23 +104,33 @@ public class BuffManager
         return totalDebuffMultiplier;
     }
 
-    // Consume Buff
+    // Consume Buff/Debuff
     public void ConsumeBuff(DamageType damageType, EntityType entityType)
     {
+        Debug.Log($"[ConsumeBuff] Starting buff consumption for {damageType}");
         for (int i = activeEffects.Count - 1; i >= 0; i--)
         {
-            if (activeEffects[i] is Buff buff &&
+            var effect = activeEffects[i];
+            
+            // For regular buffs
+            if (effect is Buff buff && 
                 buff.DamageType == damageType &&
-                buff.SourceType == entityType)
+                (buff.SourceType == EntityType.Self || buff.SourceType == entityType))
             {
-                buff.Consume();
-                Debug.Log($"Consuming buff {buff.EffectName}, remaining: {buff.ConsumeCharge}");
-
-                if (buff.ConsumeCharge <= 0)
+                effect.ReduceCharge();
+                Debug.Log($"Consuming buff {buff.EffectName}, remaining: {effect.ConsumeCharge}");
+                
+                if (effect.IsExpired())
                 {
                     activeEffects.RemoveAt(i);
-                    Debug.Log($"Buff {buff.EffectName} expired.");
+                    Debug.Log($"{effect.EffectName} expired.");
                 }
+            }
+            // For bleed debuff - don't consume here, let TriggerEffect handle it
+            else if (effect is Debuff && effect is { } dotDebuff && 
+                     ((Debuff)effect).Type == DebuffType.DamageOverTime)
+            {
+                Debug.Log($"Found bleed effect with {effect.ConsumeCharge} charges");
             }
         }
     }

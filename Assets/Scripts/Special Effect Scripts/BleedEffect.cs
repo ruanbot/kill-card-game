@@ -16,7 +16,7 @@ public class BleedEffect : CombatSpecialEffects
             damagePerTrigger: damagePerTrigger
         )
         {
-            TriggerType = EffectTriggerType.OnDamageReceived
+            TriggerType = EffectTriggerType.OnPlayerAttack
         };
     }
 }

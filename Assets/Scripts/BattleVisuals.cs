@@ -127,49 +127,61 @@ public class BattleVisuals : MonoBehaviour
     }
 
 
-    public void PlayAttackAnimation()
+    public void PlayAttackAnimation(Action onComplete = null)
     {
         anim.SetTrigger(IS_ATTACK_PARAM);
+        if (onComplete != null)
+            StartCoroutine(AnimationCallback(IS_ATTACK_PARAM, onComplete));
     }
 
-    public void PlaySpecificAttackAnimation(string animationTrigger)
+    public void PlaySpecificAttackAnimation(string animationTrigger, Action onComplete = null)
     {
         if (!string.IsNullOrEmpty(animationTrigger))
         {
             anim.SetTrigger(animationTrigger);
-            StartCoroutine(WaitForAnimationToEnd(animationTrigger));
+            if (onComplete != null)
+                StartCoroutine(AnimationCallback(animationTrigger, onComplete));
         }
-    }
-
-    private IEnumerator WaitForAnimationToEnd(string animationTrigger)
-    {
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f);
-        anim.ResetTrigger(animationTrigger); // Not strictly necessary for triggers, but safe
-    }
-
-
-    public void PlayHitAnimation()
-    {
-        CardManager.Instance.LockHighlights(true);
-        anim.SetTrigger(IS_HIT_PARAM);
-        StartCoroutine(UnlockHighlightAfterAnimation());
-    }
-
-    private IEnumerator UnlockHighlightAfterAnimation()
-    {
-        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
-        CardManager.Instance.LockHighlights(false);
-
-        // Retrigger highlights if a card is currently hovered
-        if (CardManager.Instance.currentlyHoveredCard != null)
+        else
         {
-            CardManager.Instance.HighlightTargets(CardManager.Instance.currentlyHoveredCard);
+            onComplete?.Invoke();
         }
     }
 
-    public void PlayDeathAnimation()
+    private IEnumerator AnimationCallback(string triggerName, Action onComplete)
+    {
+        // Wait for the animator to leave its current state (transition into the new animation)
+        var initialState = anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+        float waitTimeout = 0.5f;
+        float waited = 0f;
+        while (anim.GetCurrentAnimatorStateInfo(0).fullPathHash == initialState && waited < waitTimeout)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        // Now wait until the new animation finishes (normalizedTime wraps for looping anims)
+        yield return new WaitUntil(() =>
+        {
+            var stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            return !anim.IsInTransition(0) && stateInfo.normalizedTime >= 0.95f;
+        });
+
+        onComplete?.Invoke();
+    }
+
+    public void PlayHitAnimation(Action onComplete = null)
+    {
+        anim.SetTrigger(IS_HIT_PARAM);
+        if (onComplete != null)
+            StartCoroutine(AnimationCallback(IS_HIT_PARAM, onComplete));
+    }
+
+    public void PlayDeathAnimation(Action onComplete = null)
     {
         anim.SetTrigger(IS_DEAD_PARAM);
+        if (onComplete != null)
+            StartCoroutine(AnimationCallback(IS_DEAD_PARAM, onComplete));
     }
 
     private void OnMouseEnter()

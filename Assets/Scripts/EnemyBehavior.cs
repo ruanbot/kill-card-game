@@ -9,10 +9,11 @@ public class EnemyBehavior : MonoBehaviour
     private float attackTimer;
     private int currentAttackIndex = 0;
     private BattleEntities target;
-    private EnemyAttackSystem attackSystem;
 
     private BattleEntities selfEntity; // Reference to this enemy's BattleEntities object
     private bool isResting = false;    // Flag to track resting state
+
+    private CombatActionQueue actionQueue;
 
     [SerializeField] private TextMeshProUGUI timerText;
 
@@ -23,13 +24,6 @@ public class EnemyBehavior : MonoBehaviour
 
     void Start()
     {
-        attackSystem = FindFirstObjectByType<EnemyAttackSystem>();
-        if (attackSystem == null)
-        {
-            Debug.LogError("EnemyAttackSystem not found in the scene!");
-            return;
-        }
-
         var battleSystem = FindFirstObjectByType<BattleSystem>();
         if (battleSystem == null || battleSystem.playerBattlers.Count == 0)
         {
@@ -37,6 +31,7 @@ public class EnemyBehavior : MonoBehaviour
             return;
         }
         target = battleSystem.playerBattlers[UnityEngine.Random.Range(0, battleSystem.playerBattlers.Count)];
+        actionQueue = battleSystem.ActionQueue;
 
         if (attacks == null || attacks.Length == 0)
         {
@@ -47,21 +42,22 @@ public class EnemyBehavior : MonoBehaviour
         attackTimer = attacks[currentAttackIndex].cooldown;
 
         var enemyManager = FindFirstObjectByType<EnemyManager>();
-        if (enemyManager == null)
+        if (enemyManager != null)
         {
-            Debug.LogError("EnemyManager not found!");
-            return;
+            enemyManager.RegisterEnemy(this);
         }
-        enemyManager.RegisterEnemy(this);
     }
 
     void Update()
     {
-        // ensure enemies dont attack before hand is initialized
+        // Ensure enemies don't attack before hand is initialized
         if (!CardManager.Instance.IsHandInitialized())
-        {
             return;
-        }
+
+        // Pause timer while queue is processing
+        if (actionQueue != null && actionQueue.IsProcessing)
+            return;
+
         if (target == null || isResting || attacks.Length == 0) return;
 
         // Countdown the attack timer
@@ -72,11 +68,11 @@ public class EnemyBehavior : MonoBehaviour
         {
             timerText.text = attackTimer > 0
                 ? Mathf.CeilToInt(attackTimer).ToString()
-                : $"{attacks[currentAttackIndex].attackName}"; // Indicate attack phase
+                : $"{attacks[currentAttackIndex].attackName}";
             timerText.gameObject.SetActive(true);
         }
 
-        // If timer reaches zero and not resting, trigger the attack
+        // If timer reaches zero, enqueue the attack
         if (attackTimer <= 0)
         {
             TriggerAttack();
@@ -85,43 +81,77 @@ public class EnemyBehavior : MonoBehaviour
 
     private void TriggerAttack()
     {
-        if (isResting) return; // Prevent duplicate triggers
+        if (isResting) return;
 
-        isResting = true; // Enter resting state
-        attackTimer = float.MaxValue; // Prevent multiple triggers
+        isResting = true;
+        attackTimer = float.MaxValue;
 
-        // Play attack animation
-        if (selfEntity != null)
+        var attack = attacks[currentAttackIndex];
+        int adjustedDamage = attack.CalculateDamage(selfEntity);
+
+        actionQueue.Enqueue(new CombatAction
         {
-            selfEntity.BattleVisuals?.PlaySpecificAttackAnimation(attacks[currentAttackIndex].animationTrigger);
-        }
-
-        // Debug.Log($"[{gameObject.name}] Triggered attack: {attacks[currentAttackIndex].attackName}");
+            description = $"{selfEntity.Name} uses {attack.attackName}",
+            enqueuedTime = Time.time,
+            isPlayerAction = false,
+            execute = (done) =>
+            {
+                // Play attack animation
+                selfEntity.BattleVisuals?.PlaySpecificAttackAnimation(attack.animationTrigger, () =>
+                {
+                    // Apply damage and react
+                    ApplyDamageAndReact(attack, adjustedDamage, done);
+                });
+            }
+        });
     }
 
-    //  **This function is now called as an animation event in Unity!**
-    public void ApplyDamage()
+    private void ApplyDamageAndReact(EnemyAttack attack, int adjustedDamage, System.Action done)
     {
-        if (target != null && attackSystem != null && attacks.Length > 0)
+        if (target == null)
         {
-            attackSystem.ExecuteAttack(selfEntity, target, attacks[currentAttackIndex]);
-            // Debug.Log($"[{gameObject.name}] Applied damage to {target.Name} using attack: {attacks[currentAttackIndex].attackName}");
+            done();
+            return;
+        }
+
+        int actualDamage = target.TakeDamage(adjustedDamage, attack.damageType);
+        target.BattleVisuals?.ShowPopup(actualDamage, true);
+        attack.ApplySpecialEffects(target);
+
+        Debug.Log($"{attack.attackName}: Dealt {actualDamage} {attack.damageType} damage to {target.Name}");
+
+        if (!target.IsAlive)
+        {
+            target.BattleVisuals?.PlayDeathAnimation(() =>
+            {
+                var battleSystem = FindFirstObjectByType<BattleSystem>();
+                battleSystem?.RemoveDeadEntity(target);
+                if (target.BattleVisuals != null)
+                    Destroy(target.BattleVisuals.gameObject, 1f);
+                StartRestPhase();
+                done();
+            });
+        }
+        else
+        {
+            target.BattleVisuals?.PlayHitAnimation(() =>
+            {
+                StartRestPhase();
+                done();
+            });
         }
     }
 
-    //  **This function is now called as an animation event at the end of the animation!**
+    // Kept as no-op for animation event compatibility
+    public void ApplyDamage() { }
+
     public void StartRestPhase()
     {
-        // Debug.Log($"[{gameObject.name}] Animation event triggered! Entering rest phase.");
         StartCoroutine(ApplyRestPhase());
     }
 
     private IEnumerator ApplyRestPhase()
     {
-        // Ensure the enemy is back in idle before resetting
-        Animator anim = selfEntity.BattleVisuals.GetComponent<Animator>();
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("skele_idle"));
-
         if (timerText != null)
         {
             timerText.text = "<color=#ADD8E6>Resting...</color>";
@@ -131,8 +161,8 @@ public class EnemyBehavior : MonoBehaviour
 
         // Reset attack timer and state
         attackTimer = attacks[currentAttackIndex].cooldown;
-        currentAttackIndex = (currentAttackIndex + 1) % attacks.Length; // Cycle to the next attack
-        isResting = false; // Exit resting state
+        currentAttackIndex = (currentAttackIndex + 1) % attacks.Length;
+        isResting = false;
     }
 
     private void OnDestroy()

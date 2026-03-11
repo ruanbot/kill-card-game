@@ -24,7 +24,9 @@ public class CardManager : MonoBehaviour
 
     private bool isHandInitialized = false;
     private bool highlightLock = false;
+    private bool cardsPlayable = true;
     public Card currentlyHoveredCard;
+    private CombatActionQueue actionQueue;
 
 
     //Disket
@@ -42,7 +44,12 @@ public class CardManager : MonoBehaviour
     {
         energyManager = FindFirstObjectByType<EnergyManager>();
         battleSystem = FindFirstObjectByType<BattleSystem>();
+        actionQueue = battleSystem.ActionQueue;
+    }
 
+    public void SetCardsPlayable(bool playable)
+    {
+        cardsPlayable = playable;
     }
 
     public void AddToHand(Card card)
@@ -93,26 +100,68 @@ public class CardManager : MonoBehaviour
     public void PlayCard(Card card, BattleEntities caster, BattleEntities target)
     {
         if (!hand.Contains(card)) return;
+        if (!cardsPlayable) return;
 
         if (energyManager.HasEnoughEnergy(card.manaCost))
         {
-            // Remove the card from hand to maintain correct hand state
+            // Immediate: remove from hand, spend energy, discard, destroy visual
             hand.Remove(card);
-
-            // Execute card effects
-            card.Use(caster, target);
-
-            // Trigger 'OnCardUse' effects
-            caster.TriggerEffects(EffectTriggerType.OnCardUse);
-            target.TriggerEffects(EffectTriggerType.OnCardUse);
-
-            // Update Energy and discard card
             energyManager.SpendEnergy(card.manaCost);
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
-
-            // Clear Highlights & Destroy visual
             ClearHighlights();
             DestroyCardVisual(card);
+
+            // Check if this is an attack card (has a damage-dealing Use)
+            bool isAttackCard = card is SlashData || card is CleaveData;
+
+            // Queue the execution
+            actionQueue.Enqueue(new CombatAction
+            {
+                description = $"Player plays {card.cardName}",
+                enqueuedTime = Time.time,
+                isPlayerAction = true,
+                execute = (done) =>
+                {
+                    if (isAttackCard)
+                    {
+                        // Play attack animation, then apply card effect, then react
+                        caster.BattleVisuals?.PlayAttackAnimation(() =>
+                        {
+                            card.Use(caster, target);
+                            caster.TriggerEffects(EffectTriggerType.OnCardUse);
+                            target.TriggerEffects(EffectTriggerType.OnCardUse);
+
+                            bool tookDamage = !target.IsAlive || target.CurrentHealth < target.MaxHealth;
+                            if (!target.IsAlive)
+                            {
+                                target.BattleVisuals?.PlayDeathAnimation(() =>
+                                {
+                                    battleSystem.RemoveDeadEntity(target);
+                                    if (target.BattleVisuals != null)
+                                        UnityEngine.Object.Destroy(target.BattleVisuals.gameObject, 1f);
+                                    done();
+                                });
+                            }
+                            else if (tookDamage)
+                            {
+                                target.BattleVisuals?.PlayHitAnimation(() => done());
+                            }
+                            else
+                            {
+                                done();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // Non-attack card (buff, heal, etc.) — just execute immediately
+                        card.Use(caster, target);
+                        caster.TriggerEffects(EffectTriggerType.OnCardUse);
+                        target.TriggerEffects(EffectTriggerType.OnCardUse);
+                        done();
+                    }
+                }
+            });
         }
         else
         {
@@ -123,6 +172,7 @@ public class CardManager : MonoBehaviour
 
     private void SelectCard(Card card)
     {
+        if (!cardsPlayable) return;
         selectedCard = card;
 
         var caster = battleSystem.GetCurrentPlayer(); // Get the active player/caster

@@ -10,9 +10,11 @@ public class EnergyManager : MonoBehaviour
     [SerializeField] private float energyIncreaseInterval = 2f;
     [SerializeField] private int maxEnergy = 8;
 
+    private Coroutine regenCoroutine;
+
     void Start()
     {
-        StartCoroutine(IncreaseEnergyOverTime());
+        regenCoroutine = StartCoroutine(IncreaseEnergyOverTime());
         UpdateEnergyUI();
     }
 
@@ -54,5 +56,22 @@ public class EnergyManager : MonoBehaviour
     public int GetCurrentEnergy()
     {
         return currentEnergy;
+    }
+
+    public void PauseRegen()
+    {
+        if (regenCoroutine != null)
+        {
+            StopCoroutine(regenCoroutine);
+            regenCoroutine = null;
+        }
+    }
+
+    public void ResumeRegen()
+    {
+        if (regenCoroutine == null)
+        {
+            regenCoroutine = StartCoroutine(IncreaseEnergyOverTime());
+        }
     }
 }

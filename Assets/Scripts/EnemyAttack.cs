@@ -10,22 +10,21 @@ public class EnemyAttack : ScriptableObject
     public string animationTrigger; // Add this for attack-specific animations
     public CombatSpecialEffects specialEffect;
 
-    public void Execute(BattleEntities attacker, BattleEntities target)
+    /// <summary>
+    /// Calculate damage without playing animations or applying effects.
+    /// Animations are now handled by CombatActionQueue.
+    /// </summary>
+    public int CalculateDamage(BattleEntities attacker)
     {
-        // Play attack animation
-        attacker.BattleVisuals?.PlaySpecificAttackAnimation(animationTrigger);
- 
-
-        // Deal damage
         float multiplier = attacker.GetBuffedDamageMultiplier(damageType);
-        int adjustedDamage = Mathf.FloorToInt(damage * multiplier);
-        int actualDamage = target.TakeDamage(adjustedDamage, damageType);
+        return Mathf.FloorToInt(damage * multiplier);
+    }
 
-        target.BattleVisuals?.ShowPopup(actualDamage, true);
-
-        Debug.Log($"{attackName}: Dealt {actualDamage} {damageType} damage to {target.Name}");
-
-        // Apply special effects if any
+    /// <summary>
+    /// Apply special effects (bleed, etc.) to the target.
+    /// </summary>
+    public void ApplySpecialEffects(BattleEntities target)
+    {
         if (specialEffect != null)
         {
             var effect = specialEffect.CreateEffect();

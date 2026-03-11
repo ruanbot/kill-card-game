@@ -19,9 +19,6 @@ public class SlashData : Card
         // Ensure base damage is consistent
         int baseDamage = Damage;
 
-        // Play the attack animation
-        caster.BattleVisuals?.PlayAttackAnimation();
-
         // Apply the adjusted damage to the target
         cardEffect.DealDamage(caster, target, baseDamage, damageType);
         Debug.Log($"{cardName} used: Base Damage = {baseDamage} on {target.Name}");

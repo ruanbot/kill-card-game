@@ -3,15 +3,7 @@ using UnityEngine;
 
 public class EnemyAttackSystem : MonoBehaviour
 {
-    public void ExecuteAttack(BattleEntities attacker, BattleEntities target, EnemyAttack attack)
-    {
-        if (attacker == null || target == null || attack == null)
-        {
-            Debug.LogError("Invalid attack execution parameters.");
-            return;
-        }
-
-        // Debug.Log($"{attack.attackName}: Executing attack from {attacker.Name} on {target.Name}");
-        attack.Execute(attacker, target);
-    }
+    // ExecuteAttack removed — damage is now calculated via EnemyAttack.CalculateDamage()
+    // and routed through CombatActionQueue by EnemyBehavior.
+    // Class kept for prefab/scene compatibility.
 }

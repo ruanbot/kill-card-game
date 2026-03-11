@@ -21,8 +21,6 @@ public class CleaveData : Card
         // Loop through all enemy entities in the scene
         var battleSystem = FindFirstObjectByType<BattleSystem>();
 
-        caster.BattleVisuals?.PlayAttackAnimation();
-
         foreach (var enemy in battleSystem.enemyBattlers)
         {
             cardEffect.DealDamage(caster, target, baseDamage, damageType);

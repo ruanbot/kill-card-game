@@ -18,8 +18,16 @@ public class BattleSystem : MonoBehaviour
 
     public EnemyManager GetEnemyManager() => enemyManager;
 
-    private Queue<System.Action> attackQueue = new Queue<System.Action>();
-    private bool isProcessing = false;
+    private CombatActionQueue actionQueue;
+    public CombatActionQueue ActionQueue
+    {
+        get
+        {
+            if (actionQueue == null)
+                actionQueue = gameObject.AddComponent<CombatActionQueue>();
+            return actionQueue;
+        }
+    }
 
     private bool canEnemiesAttack = false;
 
@@ -29,45 +37,8 @@ public class BattleSystem : MonoBehaviour
         Debug.Log("Hand initialized! Enemies can now attack.");
     }
 
-    public void EnqueueAttack(System.Action attack)
-    {
-        if (!canEnemiesAttack)
-        {
-            Debug.Log("Enemies cannot attack yet! Waiting for hand initialization.");
-            return;
-        }
-
-        attackQueue.Enqueue(attack);
-        if (!isProcessing)
-        {
-            StartCoroutine(ProcessQueue());
-        }
-    }
-
-    private IEnumerator ProcessQueue()
-    {
-        isProcessing = true;
-
-        try 
-        {
-            while (attackQueue.Count > 0)
-            {
-                var attack = attackQueue.Dequeue();
-                attack.Invoke();
-                yield return new WaitForSeconds(1f);
-            }
-        }
-        finally 
-        {
-            isProcessing = false;
-            attackQueue.Clear(); // Clear any remaining attacks if coroutine is stopped
-        }
-    }
-
-    // Add this to clean up when the object is destroyed
     private void OnDestroy()
     {
-        attackQueue.Clear();
         StopAllCoroutines();
     }
 
@@ -208,6 +179,13 @@ private void CreateEnemyEntities()
         return null;
     }
 
+    public void RemoveDeadEntity(BattleEntities entity)
+    {
+        allBattlers.Remove(entity);
+        enemyBattlers.Remove(entity);
+        playerBattlers.Remove(entity);
+    }
+
     public void EndBattle()
     {
         StopAllCoroutines();
@@ -215,7 +193,6 @@ private void CreateEnemyEntities()
         {
             entity.ClearAllEffects();
         }
-        attackQueue.Clear();
         Debug.Log("Battle ended, all buffs cleared.");
     }
 
@@ -266,6 +243,8 @@ public class BattleEntities
         Debug.Log($"Entity initialized: {name}, EntityType: {entityType}");
     }
 
+    public bool IsAlive => CurrentHealth > 0;
+
     public int TakeDamage(int damage, DamageType damageType, BattleEntities source = null)
     {
         Debug.Log($"[TakeDamage] Starting damage process for {damageType} from {source?.Name ?? "self"}");
@@ -283,21 +262,10 @@ public class BattleEntities
             TriggerEffects(EffectTriggerType.OnDamageReceived);
         }
 
-        if (CurrentHealth == 0)
-        {
-            HandleDeath();
-        }
-
         BattleVisuals?.SyncWithEntity(this);
-        BattleVisuals?.PlayHitAnimation();
 
+        // Animation calls removed — now handled by CombatActionQueue
         return damage;
-    }
-
-    private void HandleDeath()
-    {
-        Debug.Log($"{Name} has died!");
-        BattleVisuals?.PlayDeathAnimation();
     }
 
     public void TriggerEffects(EffectTriggerType triggerType)

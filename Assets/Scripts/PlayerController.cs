@@ -99,14 +99,14 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded())
         {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
         }
     }
 
     private void AnimatorControllers()
     {
         anim.SetBool("isGrounded", isGrounded());
-        anim.SetFloat("yVelocity", rb.velocity.y);
+        anim.SetFloat("yVelocity", rb.linearVelocity.y);
 
     }
 

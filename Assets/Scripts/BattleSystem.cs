@@ -29,7 +29,9 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    #pragma warning disable CS0414
     private bool canEnemiesAttack = false;
+    #pragma warning restore CS0414
 
     public void StartEnemyAttacks()
     {

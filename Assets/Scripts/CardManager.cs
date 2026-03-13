@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 
 public class CardManager : MonoBehaviour
@@ -52,6 +54,9 @@ public class CardManager : MonoBehaviour
         cardsPlayable = playable;
     }
 
+    [Header("Draw Animation")]
+    [SerializeField] private float drawAnimDuration = 0.3f;
+
     public void AddToHand(Card card)
     {
         Card uniqueCard = Instantiate(card);
@@ -75,6 +80,8 @@ public class CardManager : MonoBehaviour
             }
         }
 
+        UpdateHandSpacing();
+
         // Assign the card data to the CardHoverHighlight component
         CardHoverHighlight hoverHighlight = cardVisual.GetComponent<CardHoverHighlight>();
         if (hoverHighlight != null)
@@ -89,6 +96,65 @@ public class CardManager : MonoBehaviour
             displayCard.card = uniqueCard; // Pass the card data to the display script
             displayCard.UpdateCardInfo(); // Update card visuals like name, artwork, etc.
         }
+
+        // Animate card from deck to its hand position
+        StartCoroutine(AnimateCardFromDeck(cardVisual.gameObject));
+    }
+
+    private IEnumerator AnimateCardFromDeck(GameObject cardObj)
+    {
+        RectTransform cardRect = cardObj.GetComponent<RectTransform>();
+        Transform handTransform = cardObj.transform.parent;
+
+        // Disable hover/spread on this card during animation
+        var overlapHandler = cardObj.GetComponent<CardOverlapHandler>();
+        if (overlapHandler != null)
+        {
+            overlapHandler.isAnimating = true;
+            overlapHandler.animTargetPos = cardRect.anchoredPosition;
+        }
+
+        Vector3 targetScale = cardRect.localScale; // 0.55
+
+        // Find DeckPanel and convert its position to Hand's local space
+        GameObject deckPanel = GameObject.Find("DeckPanel");
+        if (deckPanel != null)
+        {
+            Vector3 deckWorldPos = deckPanel.transform.position;
+            Vector3 deckLocalPos = handTransform.InverseTransformPoint(deckWorldPos);
+            cardRect.anchoredPosition = new Vector2(deckLocalPos.x, deckLocalPos.y);
+        }
+
+        // Start small
+        Vector3 startScale = targetScale * 0.5f;
+        cardRect.localScale = startScale;
+
+        // Use a chase speed instead of fixed lerp from start→end.
+        // This way, if animTargetPos changes mid-flight (because more cards were drawn
+        // and UpdateHandSpacing recalculated), the card smoothly redirects without
+        // snapping or tilting through a wrong intermediate path.
+        float chaseSpeed = 1f / drawAnimDuration * 3f; // reaches target well within duration
+        float elapsed = 0f;
+        while (elapsed < drawAnimDuration)
+        {
+            elapsed += Time.deltaTime;
+            float dt = Time.deltaTime * chaseSpeed;
+
+            Vector2 targetPos = overlapHandler != null ? overlapHandler.animTargetPos : cardRect.anchoredPosition;
+            cardRect.anchoredPosition = Vector2.Lerp(cardRect.anchoredPosition, targetPos, dt);
+            cardRect.localScale = Vector3.Lerp(cardRect.localScale, targetScale, dt);
+
+            yield return null;
+        }
+
+        // Snap to exact final values
+        Vector2 finalPos = overlapHandler != null ? overlapHandler.animTargetPos : cardRect.anchoredPosition;
+        cardRect.anchoredPosition = finalPos;
+        cardRect.localScale = targetScale;
+
+        // Re-enable hover/spread
+        if (overlapHandler != null)
+            overlapHandler.isAnimating = false;
     }
 
     public void RemoveCardFromHand(Card card)
@@ -108,6 +174,12 @@ public class CardManager : MonoBehaviour
             hand.Remove(card);
             energyManager.SpendEnergy(card.manaCost);
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
+
+            // Add card visual to discard pile (face-up)
+            var discardPile = FindFirstObjectByType<DiscardPileManager>();
+            if (discardPile != null)
+                discardPile.AddToDiscardPile(card);
+
             ClearHighlights();
             DestroyCardVisual(card);
 
@@ -435,6 +507,19 @@ public class CardManager : MonoBehaviour
         }
 
         GameObject cardVisual = Instantiate(cardPrefab, handTransform, false);
+
+        // Scale cards down so they fit comfortably in the hand
+        cardVisual.transform.localScale = Vector3.one * 0.55f;
+
+        // Set anchor and pivot to center so manual positioning works correctly
+        var cardRect = cardVisual.GetComponent<RectTransform>();
+        if (cardRect != null)
+        {
+            cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+            cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+        }
+
         DisplayCard displayCard = cardVisual.GetComponent<DisplayCard>();
         if (displayCard != null)
         {
@@ -445,6 +530,23 @@ public class CardManager : MonoBehaviour
         {
             Debug.LogWarning("Card prefab is missing a DisplayCard component.");
         }
+
+        // Set up sorting immediately so cards overlap correctly during dealing
+        // (left cards render on top of right cards). InitializeOverlap() will
+        // reuse this Canvas later since it checks for null before adding.
+        var canvas = cardVisual.GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            canvas = cardVisual.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
+        }
+        // Left cards get higher order so they render on top
+        int childCount = handTransform.childCount;
+        int index = cardVisual.transform.GetSiblingIndex();
+        canvas.sortingOrder = childCount - index;
 
         //Disket
         return cardVisual.GetComponent<DisplayCard>();
@@ -497,15 +599,119 @@ public class CardManager : MonoBehaviour
             DisplayCard displayCard = child.GetComponent<DisplayCard>();
             if (displayCard != null && displayCard.card == card)
             {
-                Destroy(child.gameObject); // Destroy the visual GameObject
+                // Clear spread state NOW (before Destroy, which is deferred to end of frame).
+                // Without this, if the mouse is still over the hand, a neighbor card could
+                // receive HandlePointerEnter and snapshot the OLD layout positions before
+                // UpdateHandSpacing recalculates for the reduced hand.
+                CardOverlapHandler.ResetStaticState();
+
+                Destroy(child.gameObject);
+
+                // Refresh sorting orders next frame after the object is actually destroyed
+                StartCoroutine(RefreshSortingOrdersNextFrame(handTransform));
                 break;
             }
         }
     }
 
+    private System.Collections.IEnumerator RefreshSortingOrdersNextFrame(Transform handTransform)
+    {
+        yield return null; // wait for Destroy to take effect
+        CardOverlapHandler.RefreshBaseSortingOrders(handTransform);
+        UpdateHandSpacing();
+    }
+
     public bool IsHandInitialized()
     {
         return isHandInitialized;
+    }
+
+    /// <summary>
+    /// Manually positions cards in the Hand, centered, with dynamic overlap.
+    /// Disables the HorizontalLayoutGroup because it ignores localScale when
+    /// positioning children (uses rect.width=490 instead of visual width=269.5).
+    /// </summary>
+    private void UpdateHandSpacing()
+    {
+        Transform handTransform = GameObject.Find("Hand")?.transform;
+        if (handTransform == null) return;
+
+        // Disable the layout group — we position cards manually
+        var layoutGroup = handTransform.GetComponent<HorizontalLayoutGroup>();
+        if (layoutGroup != null) layoutGroup.enabled = false;
+
+        var handRect = handTransform.GetComponent<RectTransform>();
+        if (handRect == null) return;
+
+        int cardCount = handTransform.childCount;
+        if (cardCount == 0) return;
+
+        var firstCard = handTransform.GetChild(0).GetComponent<RectTransform>();
+        if (firstCard == null) return;
+
+        // Visual width is what the player sees (rect * scale)
+        float cardVisualWidth = firstCard.rect.width * firstCard.localScale.x;
+        float handWidth = handRect.rect.width;
+
+        if (cardCount == 1)
+        {
+            // Center single card
+            firstCard.anchoredPosition = new Vector2(0, firstCard.anchoredPosition.y);
+            return;
+        }
+
+        // Overlap scales with card count:
+        //   2-3 cards:  5% overlap
+        //   5 cards:   ~25% overlap
+        //   7 cards:   ~40% overlap
+        //  10 cards:   ~55% overlap
+        float minOverlap = 0.05f;
+        float maxOverlap = 0.65f;
+        float t = Mathf.InverseLerp(2f, 10f, cardCount);
+        float overlapPercent = Mathf.Lerp(minOverlap, maxOverlap, t);
+
+        // Step = distance between left edges of consecutive cards
+        float step = cardVisualWidth * (1f - overlapPercent);
+
+        // Total visual width of all cards laid out
+        float totalWidth = cardVisualWidth + step * (cardCount - 1);
+
+        // Safety: if too wide, shrink step to fit
+        if (totalWidth > handWidth)
+        {
+            step = (handWidth - cardVisualWidth) / (cardCount - 1);
+            totalWidth = handWidth;
+        }
+
+        // Position each card centered in the hand
+        // Hand pivot is (0.5, y), so x=0 is center of hand
+        float startX = -totalWidth / 2f + cardVisualWidth / 2f;
+
+        for (int i = 0; i < cardCount; i++)
+        {
+            var child = handTransform.GetChild(i);
+            var cardRect = child.GetComponent<RectTransform>();
+            if (cardRect == null) continue;
+
+            float x = startX + step * i;
+            Vector2 newPos = new Vector2(x, cardRect.anchoredPosition.y);
+
+            // For cards still animating from the deck, only update the X of their
+            // live target. The Y is mid-flight between deck and hand — using it would
+            // corrupt the target and make the card stick out of the hand.
+            var overlap = child.GetComponent<CardOverlapHandler>();
+            if (overlap != null && overlap.isAnimating)
+            {
+                overlap.animTargetPos = new Vector2(x, overlap.animTargetPos.y);
+            }
+            else
+            {
+                cardRect.anchoredPosition = newPos;
+            }
+        }
+
+        // Keep CardOverlapHandler rest positions in sync with the new layout
+        CardOverlapHandler.SyncRestPositions(handTransform);
     }
 
     private void InitializeCardScripts(GameObject cardVisual)
@@ -525,6 +731,11 @@ public class CardManager : MonoBehaviour
             cardOverlap.InitializeOverlap();
             // Debug.Log("Initialized CardOverlapHandler script for card.");
         }
+
+        // Refresh sorting orders so left cards render on top of right cards
+        Transform ht = GameObject.Find("Hand").transform;
+        if (ht != null)
+            CardOverlapHandler.RefreshBaseSortingOrders(ht);
     }
 
     private void InitializeAllCardScripts()
@@ -536,10 +747,16 @@ public class CardManager : MonoBehaviour
             return;
         }
 
+        // Reset static hover state in case of scene reload (DontDestroyOnLoad persistence)
+        CardOverlapHandler.ResetStaticState();
+
         foreach (Transform cardTransform in handTransform)
         {
             InitializeCardScripts(cardTransform.gameObject);
         }
+
+        // Refresh sorting orders once after all cards are initialized
+        CardOverlapHandler.RefreshBaseSortingOrders(handTransform);
 
         isHandInitialized = true;  //  Mark hand as initialized
         FindFirstObjectByType<BattleSystem>()?.StartEnemyAttacks();  //  Notify BattleSystem

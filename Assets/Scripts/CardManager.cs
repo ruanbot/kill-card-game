@@ -174,6 +174,12 @@ public class CardManager : MonoBehaviour
             hand.Remove(card);
             energyManager.SpendEnergy(card.manaCost);
             FindFirstObjectByType<PlayerDeck>().DiscardCard(card);
+
+            // Add card visual to discard pile (face-up)
+            var discardPile = FindFirstObjectByType<DiscardPileManager>();
+            if (discardPile != null)
+                discardPile.AddToDiscardPile(card);
+
             ClearHighlights();
             DestroyCardVisual(card);
 

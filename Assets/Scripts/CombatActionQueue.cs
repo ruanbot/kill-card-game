@@ -17,6 +17,8 @@ public class CombatActionQueue : MonoBehaviour
     private bool isProcessing;
     public bool IsProcessing => isProcessing;
 
+    private CombatAction currentAction;
+
     private EnergyManager energyManager;
     private CardManager cardManager;
 
@@ -49,6 +51,7 @@ public class CombatActionQueue : MonoBehaviour
             }
         }
         queue.Insert(insertIndex, action);
+        UpdateCardPlayability();
 
         if (!isProcessing)
         {
@@ -61,18 +64,21 @@ public class CombatActionQueue : MonoBehaviour
     private IEnumerator ProcessQueue()
     {
         // isProcessing is already set true by Enqueue() before this coroutine starts
-        PauseSystems();
+        if (energyManager != null)
+            energyManager.PauseRegen();
+        UpdateCardPlayability();
 
         while (queue.Count > 0)
         {
-            var action = queue[0];
+            currentAction = queue[0];
             queue.RemoveAt(0);
+            UpdateCardPlayability();
 
             bool done = false;
             float timeout = 5f;
 
-            Debug.Log($"[CombatQueue] Executing: {action.description}");
-            action.execute(() => done = true);
+            Debug.Log($"[CombatQueue] Executing: {currentAction.description}");
+            currentAction.execute(() => done = true);
 
             // Wait for the action's done callback or timeout
             float elapsed = 0f;
@@ -84,31 +90,41 @@ public class CombatActionQueue : MonoBehaviour
 
             if (!done)
             {
-                Debug.LogWarning($"[CombatQueue] Action '{action.description}' timed out after {timeout}s");
+                Debug.LogWarning($"[CombatQueue] Action '{currentAction.description}' timed out after {timeout}s");
             }
+
+            currentAction = null;
+            UpdateCardPlayability();
 
             // Gap between actions so they don't visually blend together
             yield return new WaitForSeconds(0.25f);
         }
 
         isProcessing = false;
-        ResumeSystems();
-    }
-
-    private void PauseSystems()
-    {
-        if (energyManager != null)
-            energyManager.PauseRegen();
-        if (cardManager != null)
-            cardManager.SetCardsPlayable(false);
-    }
-
-    private void ResumeSystems()
-    {
         if (energyManager != null)
             energyManager.ResumeRegen();
         if (cardManager != null)
             cardManager.SetCardsPlayable(true);
+    }
+
+    private bool HasPlayerAction()
+    {
+        if (currentAction != null && currentAction.isPlayerAction)
+            return true;
+
+        for (int i = 0; i < queue.Count; i++)
+        {
+            if (queue[i].isPlayerAction)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void UpdateCardPlayability()
+    {
+        if (cardManager != null)
+            cardManager.SetCardsPlayable(!HasPlayerAction());
     }
 
     private void OnDestroy()

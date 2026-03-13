@@ -11,5 +11,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BattleScene.unity
     guid: 5d1eed2582b6fe74dbcaab25a976ad72
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.adaptivePerformance.basic.provider_settings: {fileID: 11400000, guid: 14ea16ff0517d544eb4a846b66200d6c,
+      type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: f6f7e6330361f5941a739a4935dfc283,
+      type: 2}
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000,
+      guid: 66b8466ab808fb840b49216397ceb621, type: 2}
   m_UseUCBPForAssetBundles: 0

@@ -25,6 +25,7 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler,IPointerUpHandler
     public int numberOfCardsInDeck;
 
     private bool _isHolding;
+    private EnergyManager energyManager;
 
 
     // Start is called before the first frame update
@@ -36,11 +37,13 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler,IPointerUpHandler
     private void Start()
     {
         playerDeck = Object.FindFirstObjectByType<PlayerDeck>();
+        energyManager = Object.FindFirstObjectByType<EnergyManager>();
     }
 
     void Update()
     {
         UpdateCardBack();
+        UpdateManaColor();
 
         if (_isHolding)
         {
@@ -64,6 +67,23 @@ public class DisplayCard : MonoBehaviour, IPointerClickHandler,IPointerUpHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         //Moved here to down
+    }
+
+    private void UpdateManaColor()
+    {
+        if (card != null && energyManager != null && manaText != null)
+        {
+            bool canAfford = energyManager.HasEnoughEnergy(card.manaCost);
+            // Use TMP rich text to force red when unaffordable
+            if (canAfford)
+            {
+                manaText.text = card.manaCost.ToString();
+            }
+            else
+            {
+                manaText.text = "<color=red>" + card.manaCost.ToString() + "</color>";
+            }
+        }
     }
 
     private void UpdateCardBack()
